@@ -1,5 +1,5 @@
 # Проект «Большое путешествие» [![Build status][travis-image]][travis-url]
-
+ 
 * Студент: [Роман Евгеньевич](https://up.htmlacademy.ru/ecmascript/13/user/1418299).
 * Наставник: [Олег Левшин](https://up.htmlacademy.ru/ecmascript/13/user/58654).
 
