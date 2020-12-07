@@ -1,4 +1,6 @@
-export const createRootAndCostTemplate = (points) => {
+import {createElement} from "../util.js";
+
+const createRootAndCostTemplate = (points) => {
 
   const describeRoute = (allPoints) => {
     return allPoints.length > 3
@@ -6,7 +8,6 @@ export const createRootAndCostTemplate = (points) => {
       : `${allPoints[0].pointName} — ${allPoints[1].pointName} — ${allPoints[allPoints.length - 1].pointName}`;
   };
 
-  // не совсем понял как лучше вытащить дополнительную стоимость опций, поэтому пока сделал циклом. Так можно или нужно как-то корректнее это сделать?
   const getAdditionalCost = (point) => {
     let calculatedAddCost = 0;
     point.options.forEach((element) => {
@@ -37,3 +38,26 @@ export const createRootAndCostTemplate = (points) => {
   </p>
   </section>`;
 };
+
+export default class RootAndCostTemplateView {
+  constructor(points) {
+    this._element = null;
+    this._points = points;
+  }
+
+  getTemplate() {
+    return createRootAndCostTemplate(this._points);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}

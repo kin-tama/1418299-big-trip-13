@@ -6,8 +6,9 @@ import {routePointsTypes} from "../data.js";
 import {getpointTypes} from "./edit_existing_point.js";
 import {getOptions} from "./edit_existing_point.js";
 import {getRadio} from "./edit_existing_point.js";
+import {createElement} from "../util.js";
 
-export const createNewPointTemplate = (point) => {
+const createNewPointTemplate = (point) => {
 
   const {pointType, pointName, beginningTime, finishTime, cost, description, options, photos} = point;
 
@@ -88,3 +89,27 @@ export const createNewPointTemplate = (point) => {
     </form>
   </li>`;
 };
+
+export default class NewPointTemplateView {
+  constructor(point) {
+    this._element = null;
+    this._point = point;
+  }
+
+  getTemplate() {
+    return createNewPointTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
+
