@@ -3,6 +3,8 @@ import {routePointsNames} from "../data.js";
 import {routePointsOptions} from "../data.js";
 import {routePointsOptionsPrice} from "../data.js";
 import {routePointsTypes} from "../data.js";
+import {createElement} from "../util.js";
+
 
 export const getpointTypes = (allTypes) => {
   let element = ``;
@@ -12,9 +14,9 @@ export const getpointTypes = (allTypes) => {
   return element;
 };
 
-export const optionShortly = (index, allOptions) => allOptions[index].split(` `).slice(-1).toString().toLowerCase();
+const optionShortly = (index, allOptions) => allOptions[index].split(` `).slice(-1).toString().toLowerCase();
 
-export const getExistingOptions = (options) => {
+const getExistingOptions = (options) => {
   let existingOptions = [];
   options.forEach((element) => {
     existingOptions.push(element.option);
@@ -49,10 +51,9 @@ export const getRadio = (allTypes) => {
   return element;
 };
 
-export const createEditPointTemplate = (point) => {
+const createEditPointTemplate = (point) => {
 
   const {pointType, pointName, beginningTime, finishTime, cost, description, options} = point;
-
 
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -118,3 +119,25 @@ export const createEditPointTemplate = (point) => {
   </form>
   </li>`;
 };
+
+export default class EditPointView {
+  constructor(point) {
+    this._element = null;
+    this._point = point;
+  }
+
+  getTemplate() {
+    return createEditPointTemplate(this._point);
+  }
+
+  getElement() {
+    if (!this._element) {
+      this._element = createElement(this.getTemplate());
+    }
+    return this._element;
+  }
+
+  removeElement() {
+    this._element = null;
+  }
+}
