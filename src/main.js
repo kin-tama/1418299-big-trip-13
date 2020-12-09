@@ -11,7 +11,7 @@ import ExistingPointView from "./view/existing_point.js";
 import RootAndCostView from "./view/root_and_cost.js";
 import EmptyView from "./view/empty.js";
 
-const NUMBER_OF_POINTS = 0;
+const NUMBER_OF_POINTS = 20;
 
 const tripMain = document.querySelector(`.trip-main`);
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);
