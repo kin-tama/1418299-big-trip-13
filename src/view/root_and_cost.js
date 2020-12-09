@@ -39,7 +39,7 @@ const createRootAndCostTemplate = (points) => {
   </section>`;
 };
 
-export default class RootAndCostTemplateView {
+export default class RootAndCostView {
   constructor(points) {
     this._element = null;
     this._points = points;

@@ -29,7 +29,7 @@ const createSortTemplate = () => {
   </form>`;
 };
 
-export default class SortTemplateView {
+export default class SortView {
   constructor() {
     this._element = null;
   }

@@ -27,8 +27,6 @@ export const render = (type, element, container, referenceElement) => {
 
 export const createElement = (template) => {
   let newElement = document.createElement(`div`);
-  // newElement.innerHTML = template;
-  // в учебном проекте использовался newElement.innerHTML. Можно ли использовать insertAdjacentHTML?
-  newElement.insertAdjacentHTML(`afterbegin`, template);
+  newElement.innerHTML = template;
   return newElement.firstChild;
 };

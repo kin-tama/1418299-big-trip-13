@@ -59,7 +59,7 @@ const createExistingPointTemplate = (point) => {
   </li>`;
 };
 
-export default class ExistingPointTemplateView {
+export default class ExistingPointView {
   constructor(point) {
     this._element = null;
     this._point = point;
