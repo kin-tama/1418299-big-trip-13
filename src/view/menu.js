@@ -1,4 +1,4 @@
-import {createElement} from "../util.js";
+import AbstractView from "./abstract.js";
 
 const createMenuTemplate = () => {
   return `<nav class="trip-controls__trip-tabs  trip-tabs">
@@ -7,25 +7,8 @@ const createMenuTemplate = () => {
   </nav>`;
 };
 
-export default class MenuView {
-  constructor() {
-    this._element = null;
-  }
-
+export default class MenuView extends AbstractView {
   getTemplate() {
     return createMenuTemplate();
-  }
-
-  // не совсем понял, зачем нужна прослойка в виде метода "getTemplate". Почему нельзя вызывать функцию "createMenuTemplate"
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
