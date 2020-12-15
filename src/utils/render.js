@@ -45,9 +45,14 @@ export const replace = (newChild, oldChild) => {
     newChild = newChild.getElement();
   }
 
+  // if (oldChild === null || !oldChild) {
+  if (!oldChild) {
+    throw new Error(`Can't replace unexisting elements`);
+  }
+
   const parent = oldChild.parentElement;
 
-  if (parent === null || oldChild === null || newChild === null) {
+  if (parent === null || !newChild) {
     throw new Error(`Can't replace unexisting elements`);
   }
 

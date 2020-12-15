@@ -1,7 +1,6 @@
 import {createNewRoutePoint} from "./data.js";
 import {getStartDate} from "./data.js";
-import {render, replace} from "./utils/render.js";
-import {RenderTypes} from "./utils/render.js";
+import {render, replace, RenderTypes} from "./utils/render.js";
 import MenuView from "./view/menu.js";
 import SortView from "./view/trip_sort.js";
 import ListView from "./view/trip_list.js";
