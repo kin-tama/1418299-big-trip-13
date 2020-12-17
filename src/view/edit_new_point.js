@@ -1,12 +1,7 @@
 import dayjs from "dayjs";
-import {routePointsNames} from "../data.js";
-import {routePointsOptions} from "../data.js";
-import {routePointsOptionsPrice} from "../data.js";
-import {routePointsTypes} from "../data.js";
-import {getpointTypes} from "./edit_existing_point.js";
-import {getOptions} from "./edit_existing_point.js";
-import {getRadio} from "./edit_existing_point.js";
-import {createElement} from "../util.js";
+import {routePointsNames, routePointsOptions, routePointsOptionsPrice, routePointsTypes} from "../data.js";
+import {getpointTypes, getOptions, getRadio} from "./edit_existing_point.js";
+import ExistingPointView from "./existing_point.js";
 
 const createNewPointTemplate = (point) => {
 
@@ -90,26 +85,9 @@ const createNewPointTemplate = (point) => {
   </li>`;
 };
 
-export default class NewPointTemplateView {
-  constructor(point) {
-    this._element = null;
-    this._point = point;
-  }
-
+export default class NewPointTemplateView extends ExistingPointView {
   getTemplate() {
     return createNewPointTemplate(this._point);
-  }
-
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-
-    return this._element;
-  }
-
-  removeElement() {
-    this._element = null;
   }
 }
 

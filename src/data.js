@@ -1,4 +1,4 @@
-import {getRandomInteger} from "./util.js";
+import {getRandomInteger} from "./utils/common.js";
 import dayjs from "dayjs";
 
 export const routePointsNames = [
@@ -118,10 +118,3 @@ export const createNewRoutePoint = (start) => {
     isFavorite: Boolean(getRandomInteger(0, 1)),
   };
 };
-
-// Тип точки маршрута
-// Пункт назначения
-// Дата и время начала события
-// Дата и время окончания события
-// Стоимость. Целое число
-// Дополнительные опции

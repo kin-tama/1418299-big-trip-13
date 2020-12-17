@@ -1,7 +1,6 @@
 import {createNewRoutePoint} from "./data.js";
 import {getStartDate} from "./data.js";
-import {render} from "./util.js";
-import {RenderTypes} from "./util.js";
+import {render, replace, RenderTypes} from "./utils/render.js";
 import MenuView from "./view/menu.js";
 import SortView from "./view/trip_sort.js";
 import ListView from "./view/trip_list.js";
@@ -51,11 +50,11 @@ const renderPoint = (point) => {
   const editingPointComponent = new EditPointView(point);
 
   const rollupOldPoint = () => {
-    tripList.replaceChild(editingPointComponent.getElement(), existingPointComponent.getElement());
+    replace(editingPointComponent, existingPointComponent);
   };
 
   const retrieveOldPoint = () => {
-    tripList.replaceChild(existingPointComponent.getElement(), editingPointComponent.getElement());
+    replace(existingPointComponent, editingPointComponent);
   };
 
   const onEscKeyDown = (evt) => {
@@ -66,24 +65,24 @@ const renderPoint = (point) => {
     }
   };
 
-  existingPointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  existingPointComponent.setClickHandler(() => {
     rollupOldPoint();
     document.addEventListener(`keydown`, onEscKeyDown);
   });
 
-  editingPointComponent.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, () => {
+  editingPointComponent.setClickRollupHandler(() => {
     retrieveOldPoint();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  editingPointComponent.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, () => {
+  editingPointComponent.setClickResetHandler(() => {
     retrieveOldPoint();
     document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
-  editingPointComponent.getElement().querySelector(`form`).addEventListener(`submit`, (evt) => {
-    evt.preventDefault();
+  editingPointComponent.setFormSubmitHandler(() => {
     retrieveOldPoint();
+    document.removeEventListener(`keydown`, onEscKeyDown);
   });
 
   render(RenderTypes.APPEND, existingPointComponent.getElement(), tripList);

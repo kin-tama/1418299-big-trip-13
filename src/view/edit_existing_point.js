@@ -3,7 +3,7 @@ import {routePointsNames} from "../data.js";
 import {routePointsOptions} from "../data.js";
 import {routePointsOptionsPrice} from "../data.js";
 import {routePointsTypes} from "../data.js";
-import {createElement} from "../util.js";
+import AbstractView from "./abstract.js";
 
 
 export const getpointTypes = (allTypes) => {
@@ -120,24 +120,46 @@ const createEditPointTemplate = (point) => {
   </li>`;
 };
 
-export default class EditPointView {
+export default class EditPointView extends AbstractView {
   constructor(point) {
-    this._element = null;
+    super();
     this._point = point;
+    this._clickRollupHandler = this._clickRollupHandler.bind(this);
+    this._clickResetHandler = this._clickResetHandler.bind(this);
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
   }
 
   getTemplate() {
     return createEditPointTemplate(this._point);
   }
 
-  getElement() {
-    if (!this._element) {
-      this._element = createElement(this.getTemplate());
-    }
-    return this._element;
+  _clickRollupHandler(evt) {
+    evt.preventDefault();
+    this._callback.click();
   }
 
-  removeElement() {
-    this._element = null;
+  setClickRollupHandler(callback) {
+    this._callback.click = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickRollupHandler);
+  }
+
+  _clickResetHandler(evt) {
+    evt.preventDefault();
+    this._callback.reset();
+  }
+
+  setClickResetHandler(callback) {
+    this._callback.reset = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickResetHandler);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit();
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }
