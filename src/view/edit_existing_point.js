@@ -155,11 +155,13 @@ export default class EditPointView extends AbstractView {
 
   _formSubmitHandler(evt) {
     evt.preventDefault();
-    this._callback.formSubmit();
+    this._callback.formSubmit(this._point);
   }
 
+  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
+    // по событию submit на форме вызывается this._formSubmitHandler
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }

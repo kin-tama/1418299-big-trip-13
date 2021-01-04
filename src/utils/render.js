@@ -45,7 +45,6 @@ export const replace = (newChild, oldChild) => {
     newChild = newChild.getElement();
   }
 
-  // if (oldChild === null || !oldChild) {
   if (!oldChild) {
     throw new Error(`Can't replace unexisting elements`);
   }
@@ -57,4 +56,12 @@ export const replace = (newChild, oldChild) => {
   }
 
   parent.replaceChild(newChild, oldChild);
+};
+
+export const remove = (component) => {
+  if (!(component instanceof AbstractView)) {
+    throw new Error(`Can remove only components`);
+  }
+  component.getElement().remove();
+  component.removeElement();
 };

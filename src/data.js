@@ -39,6 +39,8 @@ export const routePointsOptionsPrice = {
   "Rent a car": 80
 };
 
+const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+
 export const routePointsOptions = Object.keys(routePointsOptionsPrice);
 
 const routePointsDescriptions = [
@@ -107,6 +109,7 @@ export const getFinishDate = (start) => {
 
 export const createNewRoutePoint = (start) => {
   return {
+    id: generateId(),
     pointType: routePointsTypes[getRandomInteger(1, routePointsTypes.length - 1)],
     pointName: routePointsNames[getRandomInteger(1, routePointsNames.length - 1)],
     beginningTime: start,
