@@ -9,12 +9,11 @@ const Mode = {
 
 export default class RootPointPresenter {
 
-  constructor(point, container, changePoint, changeMode) {
+  constructor(container, changePoint, changeMode) {
     // 1) point - сама точка - объект, который генерируется в data.js и передается RootPointPresenter в board.js (в board.js он попадает из main.js)
     // 2) container - this._tripList в board.js - элемент DOM, в котором будут рендериться точки
     // 3) changePoint - метод _handlePointChange
 
-    this._point = point;
     this._container = container;
     this._changePoint = changePoint;
     this._changeMode = changeMode;
@@ -28,7 +27,9 @@ export default class RootPointPresenter {
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
   }
 
-  init() {
+  init(point) {
+    this._point = point;
+
     const prevExistingPointComponent = this._existingPointComponent;
     const prevEditingPointComponent = this._editingPointComponent;
 
