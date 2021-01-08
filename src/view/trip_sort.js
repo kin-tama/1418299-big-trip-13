@@ -43,7 +43,6 @@ export default class SortView extends AbstractView {
   // присваивает свойству this._callback.changeSortType этот колбэк,  навешивает eventListener на форму сортировки.
   // 3) далее eventListener вызывает метод _changeSortTypeHandler, который проверяет туда ли мы кликнули,
   // делает evt.preventDefault(); и вызывает this._callback.changeSortType, который мы объявили в предыдущем методе
-  // это ад какой-то...
 
   _changeSortTypeHandler(evt) {
     if (evt.target.checked !== true) {
@@ -53,7 +52,7 @@ export default class SortView extends AbstractView {
     // evt.preventDefault();
     this._callback.changeSortType(evt.target.dataset.sortType);
     // console.log(evt.target.dataset.sortType);
-    }
+  }
 
   setChangeSortTypeHandler(callback) {
     this._callback.changeSortType = callback;

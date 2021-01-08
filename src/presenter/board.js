@@ -40,7 +40,7 @@ export default class Board {
     // метод сортировки
     // с помощью switch-case выбираем метод сортировки и передаем .sort соответствующий callback (sortDate или sortCost)
 
-    switch(sortType) {
+    switch (sortType) {
       case SortType.TIME:
         this._points.sort(sortDate);
         break;
@@ -90,7 +90,6 @@ export default class Board {
 
   _renderPoints() {
     // рендеринг всех точек: если длина масива точек > 1, отрендерить все точки, иначе - пустую страницу
-    console.log(this._points);
     if (this._points.length >= 1) {
       for (let i = 0; i < this._points.length; i++) {
         this._renderPoint(this._points[i]);
