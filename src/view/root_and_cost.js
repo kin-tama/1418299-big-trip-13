@@ -9,13 +9,19 @@ const createRootAndCostTemplate = (points) => {
       : `${allPoints[0].pointName} — ${allPoints[1].pointName} — ${allPoints[allPoints.length - 1].pointName}`;
   };
 
-  const getAdditionalCost = (point) => {
-    let calculatedAddCost = 0;
-    point.options.forEach((element) => {
-      calculatedAddCost = calculatedAddCost + element.addCost;
-    });
-    return calculatedAddCost;
-  };
+  const getAdditionalCost = () => 0;
+  // const getAdditionalCost = (point) => {
+  //   console.log(point);
+  //   if (!point) {
+  //     return;
+  //   }
+
+  //   let calculatedAddCost = 0;
+  //   point.options.forEach((element) => {
+  //     calculatedAddCost = calculatedAddCost + element.addCost;
+  //   });
+  //   return calculatedAddCost;
+  // };
 
   const calculateTotalCost = (allPoints) => {
     let mainCost = 0;

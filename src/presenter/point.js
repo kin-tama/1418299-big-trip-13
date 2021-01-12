@@ -57,12 +57,10 @@ export default class RootPointPresenter {
       return;
     }
 
-    // if (this._container.contains(prevEditingPointComponent.getElement())) {
     if (this._mode === Mode.EDITING) {
       replace(this._editingPointComponent, prevEditingPointComponent);
     }
 
-    // if (this._container.contains(prevExistingPointComponent.getElement())) {
     if (this._mode === Mode.DEFAULT) {
       replace(this._existingPointComponent, prevExistingPointComponent);
     }
@@ -87,6 +85,7 @@ export default class RootPointPresenter {
   _onEscKeyDown(evt) {
     if (evt.key === `Esc` || evt.key === `Escape`) {
       evt.preventDefault();
+      this._editingPointComponent.reset(this._point);
       this._retrieveOldPoint();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }

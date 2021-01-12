@@ -12,14 +12,23 @@ const createExistingPointTemplate = (point) => {
     return `${days ? days + `D` : ``} ${hours ? hours + `H ` : ``} ${minutes ? minutes + `M ` : ``}`;
   };
 
-  const getListOfOffers = (allOffers) => {
+  const getListOfOffers = (offers) => {
+    if (!offers) {
+      return ``;
+    }
+
+    let allOptions = Object.keys(offers);
+
+
     let element = ``;
-    for (let i = 0; i < allOffers.length; i++) {
-      element = element + `<li class="event__offer">
-      <span class="event__offer-title">${allOffers[i].option}</span>
-      &plus;&euro;&nbsp;
-      <span class="event__offer-price">${allOffers[i].addCost}</span>
-      </li>`;
+    for (let i = 0; i < allOptions.length; i++) {
+      if (offers[allOptions[i]] > 0) {
+        element = element + `<li class="event__offer">
+        <span class="event__offer-title">${allOptions[i]}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offers[allOptions[i]]}</span>
+        </li>`;
+      }
     }
     return element;
   };

@@ -32,7 +32,6 @@ const createSortTemplate = () => {
 
 export default class SortView extends AbstractView {
   constructor() {
-    // я забыл, что такое "super()" - нужно пересмотреть лекцию
     super();
     this._changeSortTypeHandler = this._changeSortTypeHandler.bind(this);
   }
@@ -49,14 +48,12 @@ export default class SortView extends AbstractView {
       return;
     }
 
-    // evt.preventDefault();
+    evt.preventDefault();
     this._callback.changeSortType(evt.target.dataset.sortType);
-    // console.log(evt.target.dataset.sortType);
   }
 
   setChangeSortTypeHandler(callback) {
     this._callback.changeSortType = callback;
-    // this.getElement() - это вся форма
     this.getElement().addEventListener(`click`, this._changeSortTypeHandler);
   }
 
