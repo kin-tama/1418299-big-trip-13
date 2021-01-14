@@ -1,7 +1,10 @@
 import dayjs from "dayjs";
-import {routePointsNames, routePointsTypes, pointsVsOptions, routePointsOptionsPrice, POINT_TYPES_MAP} from "../data.js";
+import {routePointsNames, routePointsTypes, pointsVsOptions, routePointsOptionsPrice, POINT_TYPES_MAP, OPTIONS_MAP, OPTIONS_MAP_REVERSE, descriptions} from "../data.js";
 import Smart from "./smart.js";
 
+
+import flatpickr from "flatpickr";
+import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
 export const getpointTypes = (allTypes) => {
   let element = ``;
@@ -32,9 +35,9 @@ export const getOptions = (poinType, options, optionsPrice) => {
 
     element = element + `<div class="event__available-offers">
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox visually-hidden" id="event-offer-${optionShortly(i, acceptableOptions)}-1" type="checkbox" name="event-offer-
+      <input class="event__offer-checkbox visually-hidden" id="${OPTIONS_MAP_REVERSE[acceptableOptions[i]]}" type="checkbox" name="event-offer-
       ${optionShortly(i, acceptableOptions)}" ${options[acceptableOptions[i]] > 0 ? `checked` : ``}>
-      <label class="event__offer-label" for="event-offer-${optionShortly(i, acceptableOptions)}-1">
+      <label class="event__offer-label" for="${OPTIONS_MAP_REVERSE[acceptableOptions[i]]}">
         <span class="event__offer-title">${acceptableOptions[i]}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${optionsPrice[acceptableOptions[i]]}</span>
@@ -128,22 +131,27 @@ export default class EditPointView extends Smart {
   constructor(point) {
     super();
     this._data = EditPointView.parsePointToData(point);
+    this._startDatepicker = null;
+    this._finishDatepicker = null;
 
     this._changePointNameHandler = this._changePointNameHandler.bind(this);
     this._choosePointTypeHandler = this._choosePointTypeHandler.bind(this);
-    // this._checkOptionHandler = this._checkOptionHandler.bind(this);
+    this._choosePointOptionsHandler = this._choosePointOptionsHandler.bind(this);
     this._clickRollupHandler = this._clickRollupHandler.bind(this);
     this._clickResetHandler = this._clickResetHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
 
     this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
   }
 
   getTemplate() {
     return createEditPointTemplate(this._data);
   }
 
-  // надо ли чем-то дополнить парсеры?
   static parsePointToData(point) {
     return Object.assign(
         {},
@@ -158,6 +166,8 @@ export default class EditPointView extends Smart {
 
   _restoreHandlers() {
     this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
     this.setClickRollupHandler(this._callback.click);
     this.setClickResetHandler(this._callback.reset);
     this.setFormSubmitHandler(this._callback.formSubmit);
@@ -165,14 +175,14 @@ export default class EditPointView extends Smart {
 
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._choosePointTypeHandler);
+    this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._choosePointOptionsHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._changePointNameHandler);
-    // this.getElement().querySelector(`.event__section--offers`).addEventListener(`change`, this._checkOptionHandler);
-
   }
 
   _changePointNameHandler(evt) {
     this.updateData({
       pointName: evt.target.value,
+      description: descriptions[evt.target.value]
     });
   }
 
@@ -184,7 +194,38 @@ export default class EditPointView extends Smart {
 
     if (evt.target.checked) {
       this.updateData({
-        pointType: POINT_TYPES_MAP[evt.target.value]
+        pointType: POINT_TYPES_MAP[evt.target.value],
+        options: {
+          "Switch to comfort": false,
+          "Add meal": false,
+          "Choose seats": false,
+          "Travel by train": false,
+          "Order Uber": false,
+          "Add luggage": false,
+          "Rent a car": false
+        }
+      });
+    }
+  }
+
+  _choosePointOptionsHandler(evt) {
+    // изменения options
+    if (evt.target.type !== `checkbox`) {
+      return;
+    }
+    evt.preventDefault();
+
+    let currentOptions = Object.assign({}, this._data.options);
+
+    if (evt.target.checked) {
+      currentOptions[OPTIONS_MAP[evt.target.id]] = routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]];
+      this.updateData({
+        options: currentOptions
+      });
+    } else {
+      currentOptions[OPTIONS_MAP[evt.target.id]] = false;
+      this.updateData({
+        options: currentOptions
       });
     }
   }
@@ -195,20 +236,54 @@ export default class EditPointView extends Smart {
     );
   }
 
-  // _checkOptionHandler(evt) {
-  //   if (evt.target.type !== `checkbox`) {
-  //     return;
-  //   }
-  //   evt.preventDefault();
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
 
-  //   if (evt.target.checked) {
-  //     this.updateData({
-  //       options: [OPTIONS_MAP[evt.target.id]]
-  //       // не понимаю, как лучше вносить изменения в options. У меня Options - это массив. В коде выше я просто затираю все значения кроме выбранного.
-  //       // + мне ещё нужно как-то удалять значение, если !evt.target.checked
-  //     });
-  //   }
-  // }
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        {
+          enableTime: true,
+          allowInput: true,
+          altFormat: `d-m-y H:i`,
+          dateFormat: `d-m-y H:i`,
+          defaultDate: this._data.beginningTime,
+          onChange: this._startDateChangeHandler
+        }
+    );
+  }
+
+  _setFinishDatepicker() {
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
+
+    this._finishDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        {
+          enableTime: true,
+          altFormat: `F j, Y`,
+          dateFormat: `d-m-y H:i`,
+          defaultDate: this._data.finishTime,
+          onChange: this._finishDateChangeHandler
+        }
+    );
+  }
+
+  _startDateChangeHandler([newStartDate]) {
+    this.updateData({
+      beginningTime: dayjs(newStartDate).toDate()
+    });
+  }
+
+  _finishDateChangeHandler([newFinishDate]) {
+    this.updateData({
+      finishTime: dayjs(newFinishDate).toDate()
+    });
+  }
 
   _clickRollupHandler(evt) {
     evt.preventDefault();

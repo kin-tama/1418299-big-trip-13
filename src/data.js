@@ -60,6 +60,16 @@ export const OPTIONS_MAP = {
   "event-offer-car-1": `Rent a car`
 };
 
+export const OPTIONS_MAP_REVERSE = {
+  "Switch to comfort": `event-offer-comfort-1`,
+  "Add meal": `event-offer-meal-1`,
+  "Choose seats": `event-offer-seats-1`,
+  "Travel by train": `event-offer-train-1`,
+  "Order Uber": `event-offer-uber-1`,
+  "Add luggage": `event-offer-luggage-1`,
+  "Rent a car": `event-offer-car-1`
+};
+
 const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 export const routePointsOptions = Object.keys(routePointsOptionsPrice);
