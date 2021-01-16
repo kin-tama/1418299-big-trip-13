@@ -217,18 +217,8 @@ export default class EditPointView extends Smart {
 
     let currentOptions = Object.assign({}, this._data.options);
 
-    // if (evt.target.checked) {
-    //   currentOptions[OPTIONS_MAP[evt.target.id]] = routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]];
-    //   this.updateData({
-    //     options: currentOptions
-    //   });
-    // } else {
-    //   currentOptions[OPTIONS_MAP[evt.target.id]] = false;
-    //   this.updateData({
-    //     options: currentOptions
-    //   });
-    // }
     currentOptions[OPTIONS_MAP[evt.target.id]] = evt.target.checked ? routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]] : false;
+
     this.updateData({
       options: currentOptions
     });
