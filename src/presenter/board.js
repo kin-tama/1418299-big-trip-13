@@ -35,7 +35,6 @@ export default class Board {
     this._tripMainTripControlsHeader = this._tripMainTripControls.querySelector(`.trip-main__trip-controls h2`);
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-
     this._newPointPreseter = new NewPointPreseter(this._handleViewAction);
   }
 
@@ -44,9 +43,13 @@ export default class Board {
   }
 
   createPoint() {
+    this._firstPoint = this._tripList.querySelector(`.trip-events__item`);
+
+    this._oldPoint = document.querySelector(`.event`);
     this._currentSortType = SortType.DEFAULT;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
-    this._newPointPreseter.init(this._tripList);
+
+    this._newPointPreseter.init();
   }
 
   _getPoints() {

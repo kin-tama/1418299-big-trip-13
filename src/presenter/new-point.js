@@ -1,10 +1,11 @@
 import {UpdateType, UserAction} from "../utils/common.js";
 import NewPointView from "../view/edit_new_point.js";
-import PointsModel from "../model/points.js";
 import {render, remove, RenderTypes} from "../utils/render.js";
+import {blankPoint} from "../data.js";
 
 export default class NewPointPreseter {
   constructor(changePoint) {
+    this._point = blankPoint;
     this._changePoint = changePoint;
 
     this._addingPointComponent = null;
@@ -14,22 +15,21 @@ export default class NewPointPreseter {
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
-  init(container) {
-    this._container = container;
+
+  init() {
 
     if (this._addingPointComponent !== null) {
       return;
     }
-    const points = new PointsModel();
-    points.setPoints();
-
-    this._point = points.getPoints()[0];
 
     this._addingPointComponent = new NewPointView(this._point);
     this._addingPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._addingPointComponent.setClickDeleteHandler(this._handleDeleteClick);
 
-    render(RenderTypes.INSERTBEFORE, this._addingPointComponent, this._container);
+    this._tripList = document.querySelector(`.trip-events__list`);
+    this._firstPoint = this._tripList.querySelector(`.trip-events__item`);
+
+    render(RenderTypes.INSERTBEFORE, this._addingPointComponent.getElement(), this._tripList, this._firstPoint);
 
     document.addEventListener(`keydown`, this._onEscKeyDown);
 

@@ -142,6 +142,7 @@ export default class EditPointView extends Smart {
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
+    this._insertPriceHandler = this._insertPriceHandler.bind(this);
 
     this._setInnerHandlers();
     this._setStartDatepicker();
@@ -191,12 +192,20 @@ export default class EditPointView extends Smart {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._choosePointTypeHandler);
     this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._choosePointOptionsHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._changePointNameHandler);
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, this._insertPriceHandler);
   }
 
   _changePointNameHandler(evt) {
     this.updateData({
       pointName: evt.target.value,
       description: descriptions[evt.target.value]
+    });
+  }
+
+  _insertPriceHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      cost: evt.target.value,
     });
   }
 

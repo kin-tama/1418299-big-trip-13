@@ -4,9 +4,9 @@ import {getpointTypes, getOptions, getRadio} from "./edit_existing_point.js";
 import Smart from "./smart.js";
 import flatpickr from "flatpickr";
 
-const createNewPointTemplate = (point) => {
+const createNewPointTemplate = (data) => {
 
-  const {pointType, pointName, beginningTime, finishTime, cost, description, options, photos} = point;
+  const {pointType, pointName, beginningTime, finishTime, cost, description, options, photos} = data;
 
   const getPhotos = (allPhotos) => {
     let element = ``;
@@ -89,18 +89,23 @@ const createNewPointTemplate = (point) => {
 export default class NewPointView extends Smart {
   constructor(point) {
     super();
+    this._data = NewPointView.parsePointToData(point);
+    this._startDatepicker = null;
+    this._finishDatepicker = null;
+
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._clickDeleteHandler = this._clickDeleteHandler.bind(this);
     this._changePointNameHandler = this._changePointNameHandler.bind(this);
     this._choosePointTypeHandler = this._choosePointTypeHandler.bind(this);
     this._choosePointOptionsHandler = this._choosePointOptionsHandler.bind(this);
+    this._insertPriceHandler = this._insertPriceHandler.bind(this);
     this._setInnerHandlers();
-
-    this._point = point;
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._point);
+    return createNewPointTemplate(this._data);
   }
 
   _formSubmitHandler(evt) {
@@ -113,6 +118,7 @@ export default class NewPointView extends Smart {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._choosePointTypeHandler);
     this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._choosePointOptionsHandler);
     this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._changePointNameHandler);
+    this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, this._insertPriceHandler);
   }
 
   _restoreHandlers() {
@@ -152,6 +158,13 @@ export default class NewPointView extends Smart {
     }
   }
 
+  _insertPriceHandler(evt) {
+    evt.preventDefault();
+    this.updateData({
+      cost: evt.target.value,
+    });
+  }
+
   _choosePointOptionsHandler(evt) {
     // изменения options
     if (evt.target.type !== `checkbox`) {
@@ -189,15 +202,13 @@ export default class NewPointView extends Smart {
       this._startDatepicker.destroy();
       this._startDatepicker = null;
     }
-
     this._startDatepicker = flatpickr(
         this.getElement().querySelector(`#event-start-time-1`),
         {
           enableTime: true,
-          allowInput: true,
           altFormat: `d/m/y H:i`,
           dateFormat: `d/m/y H:i`,
-          defaultDate: this._data.beginningTime,
+          defaultDate: 0,
           onChange: this._startDateChangeHandler
         }
     );
@@ -215,7 +226,7 @@ export default class NewPointView extends Smart {
           enableTime: true,
           altFormat: `d/m/y H:i`,
           dateFormat: `d/m/y H:i`,
-          defaultDate: this._data.finishTime,
+          defaultDate: 0,
           onChange: this._finishDateChangeHandler
         }
     );
