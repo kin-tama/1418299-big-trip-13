@@ -1,4 +1,6 @@
 import {render, replace, remove, RenderTypes} from "../utils/render.js";
+import {isDateEqual, isCostEqual} from "../utils/pointUtil.js";
+import {UserAction, UpdateType} from "../utils/common.js";
 import EditPointView from "../view/edit_existing_point.js";
 import ExistingPointView from "../view/existing_point.js";
 
@@ -7,10 +9,10 @@ const Mode = {
   EDITING: `EDITING`
 };
 
-export default class RootPointPresenter {
+export default class PointPresenter {
 
   constructor(container, changePoint, changeMode) {
-    // 1) point - сама точка - объект, который генерируется в data.js и передается RootPointPresenter в board.js (в board.js он попадает из main.js)
+    // 1) point - сама точка - объект, который генерируется в data.js и передается PointPresenter в board.js (в board.js он попадает из main.js)
     // 2) container - this._tripList в board.js - элемент DOM, в котором будут рендериться точки
     // 3) changePoint - метод _handlePointChange
 
@@ -25,6 +27,7 @@ export default class RootPointPresenter {
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
+    this._handleDeleteClick = this._handleDeleteClick.bind(this);
   }
 
   init(point) {
@@ -48,9 +51,7 @@ export default class RootPointPresenter {
       this._retrieveOldPoint();
     });
 
-    this._editingPointComponent.setClickResetHandler(() => {
-      this._retrieveOldPoint();
-    });
+    this._editingPointComponent.setClickDeleteHandler(this._handleDeleteClick);
 
     if (prevExistingPointComponent === null || prevEditingPointComponent === null) {
       render(RenderTypes.APPEND, this._existingPointComponent.getElement(), this._container);
@@ -95,14 +96,34 @@ export default class RootPointPresenter {
     // вызывает метод _changePoint, который передается точке из board presenter (то же что и _handlePointChange).
     // В качестве аргумента ему отдается описанное ниже.
     this._changePoint(
-    // копия объекта this._point, с измененным на противоположное значением isFavorite.
+        UserAction.CHANGE_POINT,
+        UpdateType.MINOR,
+        // копия объекта this._point, с измененным на противоположное значением isFavorite.
         Object.assign({}, this._point, {isFavorite: !this._point.isFavorite})
     );
   }
 
-  _handleFormSubmit(point) {
-    this._changePoint(point);
+  _handleFormSubmit(update) {
+    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
+    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
+    const isMinorUpdate =
+      !isDateEqual(this._point.beginningTime, update.beginningTime) ||
+      !isDateEqual(this._point.finishTime, update.finishTime) ||
+      !isCostEqual(this._point.cost, update.cost);
+
+    this._changePoint(
+        UserAction.CHANGE_POINT,
+        isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+        update);
     this._retrieveOldPoint();
+  }
+
+  _handleDeleteClick(point) {
+    this._changePoint(
+        UserAction.DELETE_POINT,
+        UpdateType.MINOR,
+        point
+    );
   }
 
   destroy() {

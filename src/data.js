@@ -70,7 +70,7 @@ export const OPTIONS_MAP_REVERSE = {
   "Rent a car": `event-offer-car-1`
 };
 
-const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
 
 export const routePointsOptions = Object.keys(routePointsOptionsPrice);
 
@@ -216,4 +216,25 @@ class PointData {
 export const createNewRoutePoint = (start) => {
   let newPoint = new PointData();
   return newPoint.createNewRoutePoint(start);
+};
+
+export const blankPoint = {
+  id: generateId(),
+  pointType: `Taxi`,
+  pointName: ``,
+  beginningTime: dayjs(),
+  finishTime: getFinishDate(dayjs()),
+  cost: 0,
+  description: ``,
+  options: {
+    "Switch to comfort": false,
+    "Add meal": false,
+    "Choose seats": false,
+    "Travel by train": false,
+    "Order Uber": false,
+    "Add luggage": false,
+    "Rent a car": false
+  },
+  photos: getRandomPhotos(MAX_NUMBER_OF_PHOTOS),
+  isFavorite: Boolean(getRandomInteger(0, 1)),
 };

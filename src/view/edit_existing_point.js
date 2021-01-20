@@ -138,7 +138,7 @@ export default class EditPointView extends Smart {
     this._choosePointTypeHandler = this._choosePointTypeHandler.bind(this);
     this._choosePointOptionsHandler = this._choosePointOptionsHandler.bind(this);
     this._clickRollupHandler = this._clickRollupHandler.bind(this);
-    this._clickResetHandler = this._clickResetHandler.bind(this);
+    this._clickDeleteHandler = this._clickDeleteHandler.bind(this);
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
     this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
@@ -146,6 +146,20 @@ export default class EditPointView extends Smart {
     this._setInnerHandlers();
     this._setStartDatepicker();
     this._setFinishDatepicker();
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
   }
 
   getTemplate() {
@@ -169,7 +183,7 @@ export default class EditPointView extends Smart {
     this._setStartDatepicker();
     this._setFinishDatepicker();
     this.setClickRollupHandler(this._callback.click);
-    this.setClickResetHandler(this._callback.reset);
+    this.setClickDeleteHandler(this._callback.delete);
     this.setFormSubmitHandler(this._callback.formSubmit);
   }
 
@@ -224,9 +238,9 @@ export default class EditPointView extends Smart {
     });
   }
 
-  reset(point) {
+  reset(data) {
     this.updateData(
-        EditPointView.parseDataToPoint(point)
+        EditPointView.parseDataToPoint(data)
     );
   }
 
@@ -241,8 +255,8 @@ export default class EditPointView extends Smart {
         {
           enableTime: true,
           allowInput: true,
-          altFormat: `d-m-y H:i`,
-          dateFormat: `d-m-y H:i`,
+          altFormat: `d/m/y H:i`,
+          dateFormat: `d/m/y H:i`,
           defaultDate: this._data.beginningTime,
           onChange: this._startDateChangeHandler
         }
@@ -259,8 +273,8 @@ export default class EditPointView extends Smart {
         this.getElement().querySelector(`#event-end-time-1`),
         {
           enableTime: true,
-          altFormat: `F j, Y`,
-          dateFormat: `d-m-y H:i`,
+          altFormat: `d/m/y H:i`,
+          dateFormat: `d/m/y H:i`,
           defaultDate: this._data.finishTime,
           onChange: this._finishDateChangeHandler
         }
@@ -289,14 +303,14 @@ export default class EditPointView extends Smart {
     this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickRollupHandler);
   }
 
-  _clickResetHandler(evt) {
+  _clickDeleteHandler(evt) {
     evt.preventDefault();
-    this._callback.reset();
+    this._callback.delete(EditPointView.parseDataToPoint(this._data));
   }
 
-  setClickResetHandler(callback) {
-    this._callback.reset = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickResetHandler);
+  setClickDeleteHandler(callback) {
+    this._callback.delete = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
   }
 
   _formSubmitHandler(evt) {

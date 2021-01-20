@@ -1,7 +1,8 @@
 import dayjs from "dayjs";
-import {routePointsNames, routePointsOptions, routePointsOptionsPrice, routePointsTypes} from "../data.js";
+import {routePointsNames, routePointsOptionsPrice, routePointsTypes, POINT_TYPES_MAP, OPTIONS_MAP, descriptions} from "../data.js";
 import {getpointTypes, getOptions, getRadio} from "./edit_existing_point.js";
-import ExistingPointView from "./existing_point.js";
+import Smart from "./smart.js";
+import flatpickr from "flatpickr";
 
 const createNewPointTemplate = (point) => {
 
@@ -66,7 +67,7 @@ const createNewPointTemplate = (point) => {
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
-          ${getOptions(routePointsOptions, routePointsOptionsPrice, options)}
+          ${getOptions(pointType, options, routePointsOptionsPrice)}
           </div>
         </section>
 
@@ -85,9 +86,163 @@ const createNewPointTemplate = (point) => {
   </li>`;
 };
 
-export default class NewPointTemplateView extends ExistingPointView {
+export default class NewPointView extends Smart {
+  constructor(point) {
+    super();
+    this._formSubmitHandler = this._formSubmitHandler.bind(this);
+    this._clickDeleteHandler = this._clickDeleteHandler.bind(this);
+    this._changePointNameHandler = this._changePointNameHandler.bind(this);
+    this._choosePointTypeHandler = this._choosePointTypeHandler.bind(this);
+    this._choosePointOptionsHandler = this._choosePointOptionsHandler.bind(this);
+    this._setInnerHandlers();
+
+    this._point = point;
+  }
+
   getTemplate() {
     return createNewPointTemplate(this._point);
+  }
+
+  _formSubmitHandler(evt) {
+    evt.preventDefault();
+    this._callback.formSubmit(NewPointView.parseDataToPoint(this._data));
+  }
+
+  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
+  _setInnerHandlers() {
+    this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._choosePointTypeHandler);
+    this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._choosePointOptionsHandler);
+    this.getElement().querySelector(`.event__input--destination`).addEventListener(`change`, this._changePointNameHandler);
+  }
+
+  _restoreHandlers() {
+    this._setInnerHandlers();
+    this._setStartDatepicker();
+    this._setFinishDatepicker();
+    this.setClickDeleteHandler(this._callback.delete);
+    this.setFormSubmitHandler(this._callback.formSubmit);
+  }
+
+  _changePointNameHandler(evt) {
+    this.updateData({
+      pointName: evt.target.value,
+      description: descriptions[evt.target.value]
+    });
+  }
+
+  _choosePointTypeHandler(evt) {
+    if (evt.target.type !== `radio`) {
+      return;
+    }
+    evt.preventDefault();
+
+    if (evt.target.checked) {
+      this.updateData({
+        pointType: POINT_TYPES_MAP[evt.target.value],
+        options: {
+          "Switch to comfort": false,
+          "Add meal": false,
+          "Choose seats": false,
+          "Travel by train": false,
+          "Order Uber": false,
+          "Add luggage": false,
+          "Rent a car": false
+        }
+      });
+    }
+  }
+
+  _choosePointOptionsHandler(evt) {
+    // изменения options
+    if (evt.target.type !== `checkbox`) {
+      return;
+    }
+    evt.preventDefault();
+
+    let currentOptions = Object.assign({}, this._data.options);
+
+    currentOptions[OPTIONS_MAP[evt.target.id]] = evt.target.checked ? routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]] : false;
+
+    this.updateData({
+      options: currentOptions
+    });
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    // по событию submit на форме вызывается this._formSubmitHandler
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  _clickDeleteHandler(evt) {
+    evt.preventDefault();
+    this._callback.delete(NewPointView.parseDataToPoint(this._data));
+  }
+
+  setClickDeleteHandler(callback) {
+    this._callback.delete = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
+  }
+
+  _setStartDatepicker() {
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    this._startDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-start-time-1`),
+        {
+          enableTime: true,
+          allowInput: true,
+          altFormat: `d/m/y H:i`,
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.beginningTime,
+          onChange: this._startDateChangeHandler
+        }
+    );
+  }
+
+  _setFinishDatepicker() {
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
+
+    this._finishDatepicker = flatpickr(
+        this.getElement().querySelector(`#event-end-time-1`),
+        {
+          enableTime: true,
+          altFormat: `d/m/y H:i`,
+          dateFormat: `d/m/y H:i`,
+          defaultDate: this._data.finishTime,
+          onChange: this._finishDateChangeHandler
+        }
+    );
+  }
+
+  static parsePointToData(point) {
+    return Object.assign(
+        {},
+        point
+    );
+  }
+
+  static parseDataToPoint(data) {
+    let point = Object.assign({}, data);
+    return point;
+  }
+
+  _startDateChangeHandler([newStartDate]) {
+    this.updateData({
+      beginningTime: dayjs(newStartDate).toDate()
+    });
+  }
+
+  _finishDateChangeHandler([newFinishDate]) {
+    this.updateData({
+      finishTime: dayjs(newFinishDate).toDate()
+    });
   }
 }
 
