@@ -1,5 +1,11 @@
 import FiltersView from "../view/filers.js";
-import {render, replace, remove, RenderTypes} from "../utils/render.js";
+
+import {
+  render,
+  replace,
+  remove,
+  RenderTypes
+} from "../utils/render.js";
 import {UpdateType} from "../utils/common.js";
 
 

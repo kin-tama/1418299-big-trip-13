@@ -1,10 +1,20 @@
 import dayjs from "dayjs";
-import {routePointsNames, routePointsTypes, pointsVsOptions, routePointsOptionsPrice, POINT_TYPES_MAP, OPTIONS_MAP, OPTIONS_MAP_REVERSE, descriptions} from "../data.js";
-import Smart from "./smart.js";
-
-
 import flatpickr from "flatpickr";
+import he from "he";
+
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
+
+import {
+  routePointsNames,
+  routePointsTypes,
+  pointsVsOptions,
+  routePointsOptionsPrice,
+  POINT_TYPES_MAP,
+  OPTIONS_MAP,
+  OPTIONS_MAP_REVERSE,
+  descriptions
+} from "../data.js";
+import Smart from "./smart.js";
 
 export const getpointTypes = (allTypes) => {
   let element = ``;
@@ -84,7 +94,7 @@ const createEditPointTemplate = (data) => {
         <label class="event__label  event__type-output" for="event-destination-1">
         ${pointType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointName}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointName)}" list="destination-list-1">
         <datalist id="destination-list-1">
         ${getpointTypes(routePointsNames)}
         </datalist>
@@ -103,7 +113,7 @@ const createEditPointTemplate = (data) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${cost}">
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -128,6 +138,19 @@ const createEditPointTemplate = (data) => {
 };
 
 export default class EditPointView extends Smart {
+
+  static parsePointToData(point) {
+    return Object.assign(
+        {},
+        point
+    );
+  }
+
+  static parseDataToPoint(data) {
+    let point = Object.assign({}, data);
+    return point;
+  }
+
   constructor(point) {
     super();
     this._data = EditPointView.parsePointToData(point);
@@ -167,16 +190,27 @@ export default class EditPointView extends Smart {
     return createEditPointTemplate(this._data);
   }
 
-  static parsePointToData(point) {
-    return Object.assign(
-        {},
-        point
-    );
+  setClickRollupHandler(callback) {
+    this._callback.click = callback;
+    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickRollupHandler);
   }
 
-  static parseDataToPoint(data) {
-    let point = Object.assign({}, data);
-    return point;
+  setClickDeleteHandler(callback) {
+    this._callback.delete = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
+  }
+
+  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    // по событию submit на форме вызывается this._formSubmitHandler
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  reset(data) {
+    this.updateData(
+        EditPointView.parseDataToPoint(data)
+    );
   }
 
   _restoreHandlers() {
@@ -205,7 +239,7 @@ export default class EditPointView extends Smart {
   _insertPriceHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      cost: evt.target.value,
+      cost: Number(evt.target.value),
     });
   }
 
@@ -245,12 +279,6 @@ export default class EditPointView extends Smart {
     this.updateData({
       options: currentOptions
     });
-  }
-
-  reset(data) {
-    this.updateData(
-        EditPointView.parseDataToPoint(data)
-    );
   }
 
   _setStartDatepicker() {
@@ -307,30 +335,13 @@ export default class EditPointView extends Smart {
     this._callback.click();
   }
 
-  setClickRollupHandler(callback) {
-    this._callback.click = callback;
-    this.getElement().querySelector(`.event__rollup-btn`).addEventListener(`click`, this._clickRollupHandler);
-  }
-
   _clickDeleteHandler(evt) {
     evt.preventDefault();
     this._callback.delete(EditPointView.parseDataToPoint(this._data));
   }
 
-  setClickDeleteHandler(callback) {
-    this._callback.delete = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
-  }
-
   _formSubmitHandler(evt) {
     evt.preventDefault();
     this._callback.formSubmit(EditPointView.parseDataToPoint(this._data));
-  }
-
-  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
-  setFormSubmitHandler(callback) {
-    this._callback.formSubmit = callback;
-    // по событию submit на форме вызывается this._formSubmitHandler
-    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 }

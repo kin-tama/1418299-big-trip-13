@@ -1,8 +1,20 @@
-import {render, replace, remove, RenderTypes} from "../utils/render.js";
-import {isDateEqual, isCostEqual} from "../utils/pointUtil.js";
-import {UserAction, UpdateType} from "../utils/common.js";
 import EditPointView from "../view/edit_existing_point.js";
 import ExistingPointView from "../view/existing_point.js";
+
+import {
+  render,
+  replace,
+  remove,
+  RenderTypes
+} from "../utils/render.js";
+import {
+  isDateEqual,
+  isCostEqual
+} from "../utils/pointUtil.js";
+import {
+  UserAction,
+  UpdateType
+} from "../utils/common.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -17,17 +29,19 @@ export default class PointPresenter {
     // 3) changePoint - метод _handlePointChange
 
     this._container = container;
-    this._changePoint = changePoint;
-    this._changeMode = changeMode;
+    this._pointChangeHandler = changePoint;
+    this._modeChangeHandler = changeMode;
 
     this._existingPointComponent = null;
     this._editingPointComponent = null;
     this._mode = Mode.DEFAULT;
 
-    this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._handleFavoriteClick = this._handleFavoriteClick.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
     this._handleDeleteClick = this._handleDeleteClick.bind(this);
+    this._openEditHandler = this._openEditHandler.bind(this);
+    this._closeEditHandler = this._closeEditHandler.bind(this);
+    this._onEscKeyDown = this._onEscKeyDown.bind(this);
   }
 
   init(point) {
@@ -40,17 +54,9 @@ export default class PointPresenter {
     this._editingPointComponent = new EditPointView(this._point);
 
     this._existingPointComponent.setFavoriteHandler(this._handleFavoriteClick);
-
     this._editingPointComponent.setFormSubmitHandler(this._handleFormSubmit);
-
-    this._existingPointComponent.setClickHandler(() => {
-      this._rollupOldPoint();
-    });
-
-    this._editingPointComponent.setClickRollupHandler(() => {
-      this._retrieveOldPoint();
-    });
-
+    this._existingPointComponent.setClickHandler(this._openEditHandler);
+    this._editingPointComponent.setClickRollupHandler(this._closeEditHandler);
     this._editingPointComponent.setClickDeleteHandler(this._handleDeleteClick);
 
     if (prevExistingPointComponent === null || prevEditingPointComponent === null) {
@@ -70,14 +76,25 @@ export default class PointPresenter {
     remove(prevEditingPointComponent);
   }
 
-  _rollupOldPoint() {
+  destroy() {
+    remove(this._existingPointComponent);
+    remove(this._editingPointComponent);
+  }
+
+  resetView() {
+    if (this._mode !== Mode.DEFAULT) {
+      this._closeEditPoint();
+    }
+  }
+
+  _openEditPoint() {
     replace(this._editingPointComponent, this._existingPointComponent);
     document.addEventListener(`keydown`, this._onEscKeyDown);
-    this._changeMode();
+    this._modeChangeHandler();
     this._mode = Mode.EDITING;
   }
 
-  _retrieveOldPoint() {
+  _closeEditPoint() {
     replace(this._existingPointComponent, this._editingPointComponent);
     document.removeEventListener(`keydown`, this._onEscKeyDown);
     this._mode = Mode.DEFAULT;
@@ -87,15 +104,13 @@ export default class PointPresenter {
     if (evt.key === `Esc` || evt.key === `Escape`) {
       evt.preventDefault();
       this._editingPointComponent.reset(this._point);
-      this._retrieveOldPoint();
+      this._closeEditPoint();
       document.removeEventListener(`keydown`, this._onEscKeyDown);
     }
   }
 
   _handleFavoriteClick() {
-    // вызывает метод _changePoint, который передается точке из board presenter (то же что и _handlePointChange).
-    // В качестве аргумента ему отдается описанное ниже.
-    this._changePoint(
+    this._pointChangeHandler(
         UserAction.CHANGE_POINT,
         UpdateType.MINOR,
         // копия объекта this._point, с измененным на противоположное значением isFavorite.
@@ -103,37 +118,32 @@ export default class PointPresenter {
     );
   }
 
+  _openEditHandler() {
+    this._openEditPoint();
+  }
+
+  _closeEditHandler() {
+    this._closeEditPoint();
+  }
+
   _handleFormSubmit(update) {
-    // Проверяем, поменялись ли в задаче данные, которые попадают под фильтрацию,
-    // а значит требуют перерисовки списка - если таких нет, это PATCH-обновление
     const isMinorUpdate =
       !isDateEqual(this._point.beginningTime, update.beginningTime) ||
       !isDateEqual(this._point.finishTime, update.finishTime) ||
       !isCostEqual(this._point.cost, update.cost);
 
-    this._changePoint(
+    this._pointChangeHandler(
         UserAction.CHANGE_POINT,
         isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
         update);
-    this._retrieveOldPoint();
+    this._closeEditPoint();
   }
 
   _handleDeleteClick(point) {
-    this._changePoint(
+    this._pointChangeHandler(
         UserAction.DELETE_POINT,
         UpdateType.MINOR,
         point
     );
-  }
-
-  destroy() {
-    remove(this._existingPointComponent);
-    remove(this._editingPointComponent);
-  }
-
-  resetView() {
-    if (this._mode !== Mode.DEFAULT) {
-      this._retrieveOldPoint();
-    }
   }
 }

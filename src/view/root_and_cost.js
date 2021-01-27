@@ -1,36 +1,29 @@
-// import {createElement} from "../util.js";
 import AbstractView from "./abstract.js";
 
 const createRootAndCostTemplate = (points) => {
 
   const describeRoute = (allPoints) => {
-    return allPoints.length > 3
-      ? `${allPoints[0].pointName} — ... — ${allPoints[allPoints.length - 1].pointName}`
-      : `${allPoints[0].pointName} — ${allPoints[1].pointName} — ${allPoints[allPoints.length - 1].pointName}`;
+    if (allPoints.length > 3) {
+      return `${allPoints[0].pointName} — ... — ${allPoints[allPoints.length - 1].pointName}`;
+    } else if (allPoints.length === 3) {
+      return `${allPoints[0].pointName} — ${allPoints[1].pointName} — ${allPoints[allPoints.length - 1].pointName}`;
+    } else if (allPoints.length === 2) {
+      return `${allPoints[0].pointName} — ${allPoints[1].pointName}`;
+    } else if (allPoints.length === 1) {
+      return `${allPoints[0].pointName}`;
+    } else {
+      return ``;
+    }
   };
-
-  const getAdditionalCost = () => 0;
-  // const getAdditionalCost = (point) => {
-  //   console.log(point);
-  //   if (!point) {
-  //     return;
-  //   }
-
-  //   let calculatedAddCost = 0;
-  //   point.options.forEach((element) => {
-  //     calculatedAddCost = calculatedAddCost + element.addCost;
-  //   });
-  //   return calculatedAddCost;
-  // };
 
   const calculateTotalCost = (allPoints) => {
     let mainCost = 0;
-    let additionalCost = 0;
+    let optionsCost = 0;
     for (let i = 0; i < allPoints.length; i++) {
-      mainCost = mainCost + allPoints[i].cost;
-      additionalCost = additionalCost + getAdditionalCost(points[i]);
+      optionsCost = Object.values(allPoints[i].options).reduce((a, b) => a + b);
+      mainCost = mainCost + optionsCost + allPoints[i].cost;
     }
-    return mainCost + additionalCost;
+    return mainCost;
   };
 
   return `<section class="trip-main__trip-info trip-info">
@@ -51,6 +44,7 @@ export default class RootAndCostView extends AbstractView {
     super();
     this._points = points;
   }
+
   getTemplate() {
     return createRootAndCostTemplate(this._points);
   }

@@ -1,14 +1,23 @@
-import {UpdateType, UserAction} from "../utils/common.js";
-import NewPointView from "../view/edit_new_point.js";
-import {render, remove, RenderTypes} from "../utils/render.js";
 import {blankPoint} from "../data.js";
+import {
+  UpdateType,
+  UserAction
+} from "../utils/common.js";
+import {
+  render,
+  remove,
+  RenderTypes
+} from "../utils/render.js";
+
+import NewPointView from "../view/edit_new_point.js";
 
 export default class NewPointPreseter {
+
   constructor(changePoint) {
-    this._point = blankPoint;
     this._changePoint = changePoint;
 
     this._addingPointComponent = null;
+    this._swithchMenuToTasks = null;
 
     this._onEscKeyDown = this._onEscKeyDown.bind(this);
     this._handleFormSubmit = this._handleFormSubmit.bind(this);
@@ -16,23 +25,24 @@ export default class NewPointPreseter {
   }
 
 
-  init() {
+  init(container, callback) {
+    this._container = container;
+    this._swithchMenuToTasks = callback;
+
+
+    if (this._swithchMenuToTasks !== null) {
+      this._swithchMenuToTasks();
+    }
 
     if (this._addingPointComponent !== null) {
       return;
     }
-
-    this._addingPointComponent = new NewPointView(this._point);
+    this._addingPointComponent = new NewPointView(blankPoint());
     this._addingPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._addingPointComponent.setClickDeleteHandler(this._handleDeleteClick);
 
-    this._tripList = document.querySelector(`.trip-events__list`);
-    this._firstPoint = this._tripList.querySelector(`.trip-events__item`);
-
-    render(RenderTypes.INSERTBEFORE, this._addingPointComponent.getElement(), this._tripList, this._firstPoint);
-
+    render(RenderTypes.PREPEND, this._addingPointComponent, this._container);
     document.addEventListener(`keydown`, this._onEscKeyDown);
-
   }
 
   _handleFormSubmit(newPoint) {
@@ -44,17 +54,17 @@ export default class NewPointPreseter {
     this.destroy();
   }
 
+  _handleDeleteClick() {
+    // готово
+    this.destroy();
+  }
+
   _onEscKeyDown(evt) {
     // готово
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       this.destroy();
     }
-  }
-
-  _handleDeleteClick() {
-    // готово
-    this.destroy();
   }
 
   destroy() {

@@ -80,6 +80,11 @@ export default class ExistingPointView extends AbstractView {
     return createExistingPointTemplate(this._point);
   }
 
+  setFavoriteHandler(callback) {
+    this._callback.favoriteClick = callback;
+    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
+  }
+
   _clickHandler(evt) {
     evt.preventDefault();
     this._callback.click();
@@ -94,10 +99,4 @@ export default class ExistingPointView extends AbstractView {
     evt.preventDefault();
     this._callback.favoriteClick();
   }
-
-  setFavoriteHandler(callback) {
-    this._callback.favoriteClick = callback;
-    this.getElement().querySelector(`.event__favorite-btn`).addEventListener(`click`, this._favoriteClickHandler);
-  }
-
 }

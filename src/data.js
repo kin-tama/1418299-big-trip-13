@@ -218,23 +218,25 @@ export const createNewRoutePoint = (start) => {
   return newPoint.createNewRoutePoint(start);
 };
 
-export const blankPoint = {
-  id: generateId(),
-  pointType: `Taxi`,
-  pointName: ``,
-  beginningTime: dayjs(),
-  finishTime: getFinishDate(dayjs()),
-  cost: 0,
-  description: ``,
-  options: {
-    "Switch to comfort": false,
-    "Add meal": false,
-    "Choose seats": false,
-    "Travel by train": false,
-    "Order Uber": false,
-    "Add luggage": false,
-    "Rent a car": false
-  },
-  photos: getRandomPhotos(MAX_NUMBER_OF_PHOTOS),
-  isFavorite: Boolean(getRandomInteger(0, 1)),
+export const blankPoint = () => {
+  return {
+    id: generateId(),
+    pointType: `Taxi`,
+    pointName: ``,
+    beginningTime: dayjs(),
+    finishTime: getFinishDate(dayjs()),
+    cost: 0,
+    description: ``,
+    options: {
+      "Switch to comfort": false,
+      "Add meal": false,
+      "Choose seats": false,
+      "Travel by train": false,
+      "Order Uber": false,
+      "Add luggage": false,
+      "Rent a car": false
+    },
+    photos: getRandomPhotos(MAX_NUMBER_OF_PHOTOS),
+    isFavorite: Boolean(getRandomInteger(0, 1)),
+  };
 };

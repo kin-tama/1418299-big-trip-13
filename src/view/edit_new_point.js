@@ -1,8 +1,21 @@
 import dayjs from "dayjs";
-import {routePointsNames, routePointsOptionsPrice, routePointsTypes, POINT_TYPES_MAP, OPTIONS_MAP, descriptions} from "../data.js";
-import {getpointTypes, getOptions, getRadio} from "./edit_existing_point.js";
-import Smart from "./smart.js";
 import flatpickr from "flatpickr";
+import he from "he";
+
+import {
+  routePointsNames,
+  routePointsOptionsPrice,
+  routePointsTypes,
+  POINT_TYPES_MAP,
+  OPTIONS_MAP,
+  descriptions
+} from "../data.js";
+import {
+  getpointTypes,
+  getOptions,
+  getRadio
+} from "./edit_existing_point.js";
+import Smart from "./smart.js";
 
 const createNewPointTemplate = (data) => {
 
@@ -38,7 +51,7 @@ const createNewPointTemplate = (data) => {
           <label class="event__label  event__type-output" for="event-destination-1">
           ${pointType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${pointName}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointName)}" list="destination-list-1">
           <datalist id="destination-list-1">
           ${getpointTypes(routePointsNames)}
           </datalist>
@@ -57,7 +70,7 @@ const createNewPointTemplate = (data) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${cost}">
+          <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${cost}">
         </div>
 
         <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -87,6 +100,19 @@ const createNewPointTemplate = (data) => {
 };
 
 export default class NewPointView extends Smart {
+
+  static parsePointToData(point) {
+    return Object.assign(
+        {},
+        point
+    );
+  }
+
+  static parseDataToPoint(data) {
+    let point = Object.assign({}, data);
+    return point;
+  }
+
   constructor(point) {
     super();
     this._data = NewPointView.parsePointToData(point);
@@ -106,6 +132,18 @@ export default class NewPointView extends Smart {
 
   getTemplate() {
     return createNewPointTemplate(this._data);
+  }
+
+
+  setClickDeleteHandler(callback) {
+    this._callback.delete = callback;
+    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
+  }
+
+  setFormSubmitHandler(callback) {
+    this._callback.formSubmit = callback;
+    // по событию submit на форме вызывается this._formSubmitHandler
+    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
   _formSubmitHandler(evt) {
@@ -161,7 +199,7 @@ export default class NewPointView extends Smart {
   _insertPriceHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      cost: evt.target.value,
+      cost: Number(evt.target.value),
     });
   }
 
@@ -181,20 +219,9 @@ export default class NewPointView extends Smart {
     });
   }
 
-  setFormSubmitHandler(callback) {
-    this._callback.formSubmit = callback;
-    // по событию submit на форме вызывается this._formSubmitHandler
-    this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
-  }
-
   _clickDeleteHandler(evt) {
     evt.preventDefault();
     this._callback.delete(NewPointView.parseDataToPoint(this._data));
-  }
-
-  setClickDeleteHandler(callback) {
-    this._callback.delete = callback;
-    this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
   }
 
   _setStartDatepicker() {
@@ -230,18 +257,6 @@ export default class NewPointView extends Smart {
           onChange: this._finishDateChangeHandler
         }
     );
-  }
-
-  static parsePointToData(point) {
-    return Object.assign(
-        {},
-        point
-    );
-  }
-
-  static parseDataToPoint(data) {
-    let point = Object.assign({}, data);
-    return point;
   }
 
   _startDateChangeHandler([newStartDate]) {
