@@ -60,3 +60,22 @@ export const getOffersPrices = (data) => {
 
   return prices;
 };
+
+export const blankPoint = () => {
+  return {
+    pointType: `taxi`,
+    pointName: ``,
+    beginningTime: dayjs().toDate(),
+    finishTime: dayjs().toDate(),
+    cost: 0,
+    description: ``,
+    options: {
+      "Choose meal": 180,
+      "Upgrade to comfort class": 50
+    },
+    photos: [],
+    photoDescription: [],
+    isFavorite: false,
+  };
+};
+

@@ -4,7 +4,7 @@ import he from "he";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-import {routePointsTypes} from "../data.js";
+import {routePointsTypes} from "../const.js";
 import {getpointsVsOptions, getDataMap, getReverseMap, getOffersPrices} from '../utils/pointUtil.js';
 import Smart from "./smart.js";
 

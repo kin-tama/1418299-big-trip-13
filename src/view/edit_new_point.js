@@ -1,11 +1,10 @@
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 import he from "he";
-import {routePointsTypes} from "../data.js";
+import {routePointsTypes} from "../const.js";
 import {getOptions, getRadio, getpointNames} from "./edit_existing_point.js";
 import {getReverseMap, getOffersPrices} from '../utils/pointUtil.js';
 import Smart from "./smart.js";
-
 
 const createNewPointTemplate = (data, destinations, offers) => {
 
@@ -145,6 +144,9 @@ export default class NewPointView extends Smart {
     this._choosePointTypeHandler = this._choosePointTypeHandler.bind(this);
     this._choosePointOptionsHandler = this._choosePointOptionsHandler.bind(this);
     this._insertPriceHandler = this._insertPriceHandler.bind(this);
+    this._startDateChangeHandler = this._startDateChangeHandler.bind(this);
+    this._finishDateChangeHandler = this._finishDateChangeHandler.bind(this);
+
     this._setInnerHandlers();
     this._setStartDatepicker();
     this._setFinishDatepicker();
@@ -163,6 +165,20 @@ export default class NewPointView extends Smart {
     this._callback.formSubmit = callback;
     // по событию submit на форме вызывается this._formSubmitHandler
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
+  }
+
+  removeElement() {
+    super.removeElement();
+
+    if (this._startDatepicker) {
+      this._startDatepicker.destroy();
+      this._startDatepicker = null;
+    }
+
+    if (this._finishDatepicker) {
+      this._finishDatepicker.destroy();
+      this._finishDatepicker = null;
+    }
   }
 
   _formSubmitHandler(evt) {

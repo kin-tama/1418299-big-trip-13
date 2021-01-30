@@ -61,9 +61,4 @@ export default class FiltersView extends AbstractView {
     evt.preventDefault();
     this._callback.filterTypeChange(evt.target.value);
   }
-
-  _getFilters() {
-    // вообще не понял зачем нужен этот метод. Он нужен только в учебном проекте?
-  }
-
 }

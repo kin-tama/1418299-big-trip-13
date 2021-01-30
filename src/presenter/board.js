@@ -8,7 +8,7 @@ import {
   UpdateType,
   UserAction,
   FilterType
-} from "../utils/common.js";
+} from "../const.js";
 import {filterUtil} from "../utils/filterUtil.js";
 import {
   sortDate,
@@ -32,7 +32,6 @@ export default class Board {
 
     this._filterModel = filterModel;
     this._pointsModel = pointsModel;
-    // объявляем свойство _pointPresenter - объект, в который будут записываться все точки маршрута по ключу (ID точки).
     this._pointPresenter = {};
     this._currentSortType = SortType.DEFAULT;
 
@@ -80,14 +79,9 @@ export default class Board {
   }
 
   _getPoints() {
-    // filterType - возвращает текущий установленный фильтр
     const filterType = this._filterModel.getFilter();
-    // points - все текущие точки
     const points = this._pointsModel.getPoints();
-    // filtredPoints - все текущие точки, пропущенные через import {filter} from "../utils/filterUtil.js"
     const filtredPoints = [...filterUtil[filterType](points)];
-
-    // возвращает данные из модели, пропущенные через фильтр и сортируем их
 
     switch (this._currentSortType) {
       case SortType.TIME:
@@ -141,21 +135,17 @@ export default class Board {
   }
 
   _handleModelEvent(updateType, data) {
-    // В зависимости от типа изменений решаем, что делать:
     switch (updateType) {
       case UpdateType.PATCH:
-        // - обновить часть списка (например, когда поменялось описание)
         this._pointPresenter[data.id].init(data);
         break;
       case UpdateType.MINOR:
         this._clearBoard();
         this._renderAll();
-        // - обновить список
         break;
       case UpdateType.MAJOR:
         this._clearBoard({resetSortType: true});
         this._renderAll();
-        // - обновить всю доску
         break;
       case UpdateType.INIT:
         this._isLoading = false;
@@ -188,15 +178,11 @@ export default class Board {
   }
 
   _renderList() {
-    // рендеринг списка
-    // рендери его в конец контейнера
     render(RenderTypes.APPEND, this._listComponent, this._pointsContainer);
-    // рендеринг элемента <ul class=".trip-events__list"> вынесен в отдельный метод. Чтобы потом отрендерить в нем точки или пустое сообщение, находим его с помощью селектора
     this._tripList = this._pointsContainer.querySelector(`.trip-events__list`);
   }
 
   _renderEmptyMessage() {
-    // рендеирнг пустого окна
     render(RenderTypes.APPEND, this._emptyComponent, this._tripList);
   }
 
@@ -212,11 +198,9 @@ export default class Board {
   }
 
   _renderPoint(point) {
-    // рендеринг одной точки:
     const pointPresenter = new PointPresenter(this._tripList, this._handleViewAction, this._handleModeChange, this._destinations, this._offers);
     pointPresenter.init(point);
     this._pointPresenter[point.id] = pointPresenter;
-    // после инициализации в _pointPresenter записаны все точки
   }
 
   _renderAll() {

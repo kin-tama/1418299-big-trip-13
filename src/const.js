@@ -29,10 +29,4 @@ export const MenuItem = {
   NEW_POINT: `NEW_POINT`
 };
 
-export const getRandomInteger = (min, max) => {
-  let rand = min - 0.5 + Math.random() * (max - min + 1);
-  return Math.round(rand);
-};
-
-export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
-
+export const routePointsTypes = [`taxi`, `bus`, `train`, `ship`, `transport`, `drive`, `flight`, `check-in`, `sightseeing`, `restaurant`];

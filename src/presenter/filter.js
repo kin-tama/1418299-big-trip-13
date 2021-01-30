@@ -6,7 +6,7 @@ import {
   remove,
   RenderTypes
 } from "../utils/render.js";
-import {UpdateType} from "../utils/common.js";
+import {UpdateType} from "../const.js";
 
 
 export default class FilterPresenter {
@@ -21,13 +21,11 @@ export default class FilterPresenter {
     this._handleFilterTypeChange = this._handleFilterTypeChange.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
 
-    // добавляем Observer
     this._filterModel.addObserver(this._handleModelEvent);
 
   }
 
   init() {
-    // this._filterModel.getFilter() возвращает выбранный активный фильтр
     this._currentFilter = this._filterModel.getFilter();
 
     const prevFilterComponent = this._filterComponent;

@@ -3,21 +3,7 @@ import Observer from "../utils/observer.js";
 export default class PointsModel extends Observer {
 
   static adaptToClient(point) {
-    let transformedOptions = {};
 
-    point.offers.forEach((element) => {
-      transformedOptions[element.title] = element.price;
-    });
-
-    let transformedPhotos = [];
-    point.destination.pictures.forEach((element) => {
-      transformedPhotos.push(element.src);
-    });
-
-    let transformedPhotosDescription = [];
-    point.destination.pictures.forEach((element) => {
-      transformedPhotosDescription.push(element.description);
-    });
 
     const adaptedPoint = Object.assign(
         {},
@@ -29,21 +15,28 @@ export default class PointsModel extends Observer {
           finishTime: new Date(point.date_to),
           cost: point.base_price,
           description: point.destination.description,
-          options: transformedOptions,
-          photos: transformedPhotos,
-          photosDescription: transformedPhotosDescription,
+          options: point.offers.reduce((result, offer) => Object.assign(
+            result,
+            {[offer.title]: offer.price}),
+            {}
+            ),
+          photos: point.destination.pictures.map((picture) => picture.src),
+          photosDescription: point.destination.pictures.map((picture) => picture.description),
           isFavorite: point.is_favorite,
         }
     );
 
     // Ненужные ключи мы удаляем
-    delete adaptedPoint.type;
-    delete adaptedPoint.base_price;
-    delete adaptedPoint.offers;
-    delete adaptedPoint.destination;
-    delete adaptedPoint.date_from;
-    delete adaptedPoint.date_to;
-    delete adaptedPoint.is_favorite;
+
+    [
+      `type`,
+      `base_price`,
+      `offers`,
+      `destination`,
+      `date_from`,
+      `date_to`,
+      `is_favorite`
+    ].forEach((key)=>{delete adaptedPoint[key]})
 
     return adaptedPoint;
   }
@@ -84,17 +77,18 @@ export default class PointsModel extends Observer {
         }
     );
 
-    // Ненужные ключи мы удаляем
-    delete adaptedPoint.pointType;
-    delete adaptedPoint.pointName;
-    delete adaptedPoint.description;
-    delete adaptedPoint.options;
-    delete adaptedPoint.beginningTime;
-    delete adaptedPoint.finishTime;
-    delete adaptedPoint.isFavorite;
-    delete adaptedPoint.photos;
-    delete adaptedPoint.photosDescription;
-    delete adaptedPoint.cost;
+    [
+      `pointType`,
+      `pointName`,
+      `description`,
+      `options`,
+      `beginningTime`,
+      `finishTime`,
+      `isFavorite`,
+      `photos`,
+      `photosDescription`,
+      `cost`
+    ].forEach((key)=>{delete adaptedPoint[key]})
 
     return adaptedPoint;
   }

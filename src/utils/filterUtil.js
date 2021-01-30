@@ -1,4 +1,4 @@
-import {FilterType} from "./common.js";
+import {FilterType} from "../const.js";
 import {isPast} from "./pointUtil.js";
 
 export const filterUtil = {

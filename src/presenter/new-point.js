@@ -1,8 +1,8 @@
-import {blankPoint} from "../data.js";
+import {blankPoint} from "../utils/pointUtil.js";
 import {
   UpdateType,
   UserAction
-} from "../utils/common.js";
+} from "../const.js";
 import {
   render,
   remove,
@@ -68,12 +68,10 @@ export default class NewPointPreseter {
   }
 
   _handleDeleteClick() {
-    // готово
     this.destroy();
   }
 
   _onEscKeyDown(evt) {
-    // готово
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
       this.destroy();
@@ -88,7 +86,6 @@ export default class NewPointPreseter {
   }
 
   destroy() {
-    // готово
     if (this._addingPointComponent === null) {
       return;
     }

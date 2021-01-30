@@ -1,5 +1,5 @@
 import AbstractView from "./abstract.js";
-import {MenuItem} from "../utils/common.js";
+import {MenuItem} from "../const.js";
 
 const createMenuTemplate = () => {
   return `<nav class="trip-controls__trip-tabs  trip-tabs">
@@ -35,7 +35,6 @@ export default class MenuView extends AbstractView {
   }
 
   setMenuItem(menuItem) {
-    // метод нужен для обозначения выбранного пункта меню. У меня это делается в хэндлерах - добавляется класс "trip-tabs__btn--active"
     if (menuItem === MenuItem.TABLE) {
       this._tableButton.classList.add(`trip-tabs__btn--active`);
       this._statsButton.classList.remove(`trip-tabs__btn--active`);

@@ -14,7 +14,7 @@ import {
 import {
   UserAction,
   UpdateType
-} from "../utils/common.js";
+} from "../const.js";
 
 const Mode = {
   DEFAULT: `DEFAULT`,
@@ -31,9 +31,6 @@ export const State = {
 export default class PointPresenter {
 
   constructor(container, changePoint, changeMode, destinations, offers) {
-    // 1) point - сама точка - объект, который генерируется в data.js и передается PointPresenter в board.js (в board.js он попадает из main.js)
-    // 2) container - this._tripList в board.js - элемент DOM, в котором будут рендериться точки
-    // 3) changePoint - метод _handlePointChange
 
     this._container = container;
     this._pointChangeHandler = changePoint;
@@ -74,7 +71,6 @@ export default class PointPresenter {
     }
 
     if (this._mode === Mode.EDITING) {
-      // replace(this._editingPointComponent, prevEditingPointComponent);
       replace(this._existingPointComponent, prevEditingPointComponent);
       this._mode = Mode.DEFAULT;
     }
@@ -153,7 +149,6 @@ export default class PointPresenter {
     this._pointChangeHandler(
         UserAction.CHANGE_POINT,
         UpdateType.MINOR,
-        // копия объекта this._point, с измененным на противоположное значением isFavorite.
         Object.assign({}, this._point, {isFavorite: !this._point.isFavorite})
     );
   }
