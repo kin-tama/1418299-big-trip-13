@@ -26,8 +26,6 @@ export default class PointsModel extends Observer {
         }
     );
 
-    // Ненужные ключи мы удаляем
-
     [
       `type`,
       `base_price`,

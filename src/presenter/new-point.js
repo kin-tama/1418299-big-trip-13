@@ -59,12 +59,10 @@ export default class NewPointPreseter {
   }
 
   _handleFormSubmit(newPoint) {
-  // готово
     this._changePoint(
         UserAction.ADD_POINT,
         UpdateType.MINOR,
         newPoint);
-    this.destroy();
   }
 
   _handleDeleteClick() {
