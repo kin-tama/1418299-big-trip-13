@@ -66,6 +66,6 @@ Promise.all([api.getDestinations(), api.getOffers(), api.getPoints()])
   pointsModel.setPoints(UpdateType.INIT, points);
 })
 .catch((error) => {
-  window.console.error(error)
+  window.console.error(error);
   pointsModel.setPoints(UpdateType.INIT, []);
 });

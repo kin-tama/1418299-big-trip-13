@@ -16,10 +16,10 @@ export default class PointsModel extends Observer {
           cost: point.base_price,
           description: point.destination.description,
           options: point.offers.reduce((result, offer) => Object.assign(
-            result,
-            {[offer.title]: offer.price}),
-            {}
-            ),
+              result,
+              {[offer.title]: offer.price}),
+          {}
+          ),
           photos: point.destination.pictures.map((picture) => picture.src),
           photosDescription: point.destination.pictures.map((picture) => picture.description),
           isFavorite: point.is_favorite,
@@ -36,7 +36,9 @@ export default class PointsModel extends Observer {
       `date_from`,
       `date_to`,
       `is_favorite`
-    ].forEach((key)=>{delete adaptedPoint[key]})
+    ].forEach((key)=>{
+      delete adaptedPoint[key];
+    });
 
     return adaptedPoint;
   }
@@ -88,7 +90,9 @@ export default class PointsModel extends Observer {
       `photos`,
       `photosDescription`,
       `cost`
-    ].forEach((key)=>{delete adaptedPoint[key]})
+    ].forEach((key)=>{
+      delete adaptedPoint[key];
+    });
 
     return adaptedPoint;
   }
