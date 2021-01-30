@@ -45,6 +45,9 @@ export default class TripPresenter {
         remove(this._rootComponent);
         this._renderRoot();
         break;
+      case UpdateType.INIT:
+        this._renderRoot();
+        break;
     }
   }
 }

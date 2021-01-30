@@ -18,14 +18,17 @@ import {
 import SortView from "../view/trip_sort.js";
 import ListView from "../view/trip_list.js";
 import EmptyView from "../view/empty.js";
-import PointPresenter from "./point.js";
+import LoadingView from "../view/loading.js";
+import PointPresenter, {State as PointPresenterViewState} from "./point.js";
 import NewPointPreseter from "./new-point.js";
 
 
 export default class Board {
 
-  constructor(pointsContainer, pointsModel, filterModel) {
+  constructor(pointsContainer, pointsModel, filterModel, api) {
     this._pointsContainer = pointsContainer;
+    this._isLoading = true;
+    this._api = api;
 
     this._filterModel = filterModel;
     this._pointsModel = pointsModel;
@@ -39,15 +42,15 @@ export default class Board {
     this._handleModelEvent = this._handleModelEvent.bind(this);
   }
 
-
   init() {
     this._sortComponent = null;
+    this._loadingComponent = new LoadingView();
     this._listComponent = new ListView();
     this._emptyComponent = new EmptyView();
 
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-    this._newPointPreseter = new NewPointPreseter(this._handleViewAction);
+    this._newPointPreseter = new NewPointPreseter(this._handleViewAction, this._offers, this._destinations);
 
     this._renderAll();
   }
@@ -66,6 +69,14 @@ export default class Board {
 
     this._pointsModel.removeObserver(this._handleModelEvent);
     this._filterModel.removeObserver(this._handleModelEvent);
+  }
+
+  setDestinations(destinations) {
+    this._destinations = destinations;
+  }
+
+  setOffers(offers) {
+    this._offers = offers;
   }
 
   _getPoints() {
@@ -100,13 +111,31 @@ export default class Board {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.CHANGE_POINT:
-        this._pointsModel.updatePoint(updateType, update);
+        this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
+        this._api.updatePoint(update).then((response) => {
+          this._pointsModel.updatePoint(updateType, response);
+        })
+        .catch(() => {
+          this._pointPresenter[update.id].setViewState(PointPresenterViewState.ABORTING);
+        });
         break;
       case UserAction.ADD_POINT:
-        this._pointsModel.addPoint(updateType, update);
+        this._newPointPreseter.setSaving();
+        this._api.addPoint(update).then((response) => {
+          this._pointsModel.addPoint(updateType, response);
+        })
+        .catch(() => {
+          this._newPointPreseter.setAborting();
+        });
         break;
       case UserAction.DELETE_POINT:
-        this._pointsModel.deletePoint(updateType, update);
+        this._pointPresenter[update.id].setViewState(PointPresenterViewState.DELETING);
+        this._api.deletePoint(update).then(() => {
+          this._pointsModel.deletePoint(updateType, update);
+        })
+        .catch(() => {
+          this._pointPresenter[update.id].setViewState(PointPresenterViewState.ABORTING);
+        });
         break;
     }
   }
@@ -128,18 +157,25 @@ export default class Board {
         this._renderAll();
         // - обновить всю доску
         break;
+      case UpdateType.INIT:
+        this._isLoading = false;
+        remove(this._loadingComponent);
+        this._renderPoints();
+        break;
     }
   }
 
   _handleModeChange() {
     this._newPointPreseter.destroy();
-    // не понял, как это работает
     Object.values(this._pointPresenter)
     .forEach((presenter) => {
       presenter.resetView();
     });
   }
 
+  _renderLoading() {
+    render(RenderTypes.APPEND, this._loadingComponent, this._tripList);
+  }
 
   _renderSort() {
     if (this._sortComponent !== null) {
@@ -167,7 +203,7 @@ export default class Board {
   _renderPoints() {
     // рендеринг всех точек: если длина масива точек > 1, отрендерить все точки, иначе - пустую страницу
     const points = this._getPoints();
-    if (points.length >= 1) {
+    if (points.length > 0) {
       points.forEach((point) => this._renderPoint(point));
       return;
     } else {
@@ -177,7 +213,7 @@ export default class Board {
 
   _renderPoint(point) {
     // рендеринг одной точки:
-    const pointPresenter = new PointPresenter(this._tripList, this._handleViewAction, this._handleModeChange);
+    const pointPresenter = new PointPresenter(this._tripList, this._handleViewAction, this._handleModeChange, this._destinations, this._offers);
     pointPresenter.init(point);
     this._pointPresenter[point.id] = pointPresenter;
     // после инициализации в _pointPresenter записаны все точки
@@ -186,6 +222,10 @@ export default class Board {
   _renderAll() {
     this._renderSort();
     this._renderList();
+    if (this._isLoading) {
+      this._renderLoading();
+      return;
+    }
     this._renderPoints();
   }
 

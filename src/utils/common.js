@@ -13,7 +13,8 @@ export const UserAction = {
 export const UpdateType = {
   PATCH: `PATCH`,
   MINOR: `MINOR`,
-  MAJOR: `MAJOR`
+  MAJOR: `MAJOR`,
+  INIT: `INIT`
 };
 
 export const FilterType = {
@@ -32,3 +33,6 @@ export const getRandomInteger = (min, max) => {
   let rand = min - 0.5 + Math.random() * (max - min + 1);
   return Math.round(rand);
 };
+
+export const generateId = () => Date.now() + parseInt(Math.random() * 10000, 10);
+

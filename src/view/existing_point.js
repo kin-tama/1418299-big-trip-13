@@ -3,7 +3,6 @@ import AbstractView from "./abstract.js";
 
 const createExistingPointTemplate = (point) => {
   const {pointType, pointName, beginningTime, finishTime, cost, options, isFavorite} = point;
-
   const getTimeDiff = (start, finish) => {
     let days = finish.diff(start, `day`);
     let hours = finish.diff(start, `hour`) - (days * 24);

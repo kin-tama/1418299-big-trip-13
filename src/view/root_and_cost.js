@@ -16,13 +16,13 @@ const createRootAndCostTemplate = (points) => {
     }
   };
 
-  const calculateTotalCost = (allPoints) => {
+  const calculateTotalCost = () => {
     let mainCost = 0;
-    let optionsCost = 0;
-    for (let i = 0; i < allPoints.length; i++) {
-      optionsCost = Object.values(allPoints[i].options).reduce((a, b) => a + b);
-      mainCost = mainCost + optionsCost + allPoints[i].cost;
-    }
+    // let optionsCost = 0;
+    // for (let i = 0; i < allPoints.length; i++) {
+    //   optionsCost = Object.values(allPoints[i].options).reduce((a, b) => a + b);
+    //   mainCost = mainCost + optionsCost + allPoints[i].cost;
+    // }
     return mainCost;
   };
 

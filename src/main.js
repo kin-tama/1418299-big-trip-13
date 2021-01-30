@@ -1,5 +1,3 @@
-import {createNewRoutePoint} from "./data.js";
-import {getStartDate} from "./data.js";
 import {render, RenderTypes, remove} from "./utils/render.js";
 import {MenuItem, UpdateType, FilterType} from "./utils/common.js";
 import MenuView from "./view/menu.js";
@@ -7,53 +5,35 @@ import StatsView from "./view/stats.js";
 import BoardPresenter from "./presenter/board.js";
 import FilterPresenter from "./presenter/filter.js";
 import TripPresenter from "./presenter/trip.js";
-// import AddButtonPresenter from "./presenter/add_button.js";
 import PointsModel from "./model/points.js";
 import FilterModel from "./model/filter.js";
+import Api from "./api.js";
 
-const NUMBER_OF_POINTS = 2;
+
+const AUTHORIZATION = `Basic svkjbsdkvbsduybjwe3234tw`;
+const END_POINT = `https://13.ecmascript.pages.academy/big-trip/`;
+
+const api = new Api(END_POINT, AUTHORIZATION);
 
 const tripMain = document.querySelector(`.trip-main`);
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);
 const tripMainTripControlsHeader = tripMainTripControls.querySelector(`.trip-main__trip-controls h2`);
 const tripEvents = document.querySelector(`.trip-events`);
 const tripEventsSecondHeader = tripEvents.querySelector(`.trip-events:last-child`);
-// const statsContainer = document.querySelector(`.page-body__container`);
-
-let points = [];
-let startDate = getStartDate();
-
-for (let i = 0; i < NUMBER_OF_POINTS; i++) {
-  points.push(createNewRoutePoint(startDate, i));
-  startDate = points[i].finishTime;
-}
 
 const menuViewComponent = new MenuView();
-render(RenderTypes.INSERTBEFORE, menuViewComponent, tripMainTripControls, tripMainTripControlsHeader.nextSibling);
 
 const pointsModel = new PointsModel();
-pointsModel.setPoints(points);
 
 const tripPresenterComponent = new TripPresenter(tripMain, pointsModel);
-tripPresenterComponent.init();
 
 const filterModel = new FilterModel();
 
-const boardPresenter = new BoardPresenter(tripEvents, pointsModel, filterModel);
+const boardPresenter = new BoardPresenter(tripEvents, pointsModel, filterModel, api);
 boardPresenter.init();
 
 const filterPresenter = new FilterPresenter(tripMainTripControls, tripEventsSecondHeader, filterModel);
 filterPresenter.init();
-
-// const buttonComponent = new AddButtonPresenter(tripMain, boardPresenter.createPoint);
-// buttonComponent.init();
-
-// const newPointButton = document.querySelector(`.trip-main__event-add-btn`);
-
-// newPointButton.addEventListener(`click`, (evt) => {
-//   evt.preventDefault();
-//   boardPresenter.createPoint();
-// });
 
 const handlePointNewFormOpen = () => {
   menuViewComponent.setMenuItem(MenuItem.TABLE);
@@ -85,4 +65,28 @@ const handleSiteMenuClick = (menuItem) => {
   }
 };
 
-menuViewComponent.setMenuClickHandler(handleSiteMenuClick);
+
+api.getDestinations()
+.then((dest) => {
+  boardPresenter.setDestinations(dest);
+});
+api.getOffers()
+.then((offers) => {
+  boardPresenter.setOffers(offers);
+});
+
+
+api.getPoints()
+.then((points) => {
+  pointsModel.setPoints(UpdateType.INIT, points);
+  render(RenderTypes.INSERTBEFORE, menuViewComponent, tripMainTripControls, tripMainTripControlsHeader.nextSibling);
+  tripPresenterComponent.init();
+  menuViewComponent.setMenuClickHandler(handleSiteMenuClick);
+})
+.catch(() => {
+  pointsModel.setPoints(UpdateType.INIT, []);
+  render(RenderTypes.INSERTBEFORE, menuViewComponent, tripMainTripControls, tripMainTripControlsHeader.nextSibling);
+  tripPresenterComponent.init();
+  menuViewComponent.setMenuClickHandler(handleSiteMenuClick);
+});
+

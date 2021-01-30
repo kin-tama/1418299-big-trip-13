@@ -4,73 +4,83 @@ import he from "he";
 
 import "../../node_modules/flatpickr/dist/flatpickr.min.css";
 
-import {
-  routePointsNames,
-  routePointsTypes,
-  pointsVsOptions,
-  routePointsOptionsPrice,
-  POINT_TYPES_MAP,
-  OPTIONS_MAP,
-  OPTIONS_MAP_REVERSE,
-  descriptions
-} from "../data.js";
+import {routePointsTypes} from "../data.js";
+import {getpointsVsOptions, getDataMap, getReverseMap, getOffersPrices} from '../utils/pointUtil.js';
 import Smart from "./smart.js";
 
-export const getpointTypes = (allTypes) => {
-  let element = ``;
-  for (let i = 0; i < allTypes.length; i++) {
-    element = element + `<option value="${allTypes[i]}"></option>`;
-  }
-  return element;
+export const getpointNames = (allDestinations) => {
+  let result = ``;
+  allDestinations.forEach((element) => {
+    result = result + `<option value="${element.name}"></option>`;
+  });
+
+  return result;
 };
 
-const optionShortly = (index, options) => Object.keys(options)[index].split(` `).slice(-1).toString().toLowerCase();
-
-export const getOptions = (poinType, options, optionsPrice) => {
+export const getOptions = (poinType, options, offers) => {
   if (!poinType || !options) {
     return ``;
   }
-  let acceptableOptions = pointsVsOptions[poinType];
-  let allOptions = Object.keys(options);
-  let chosenOptions = [];
 
-  for (let i = 0; i < allOptions.length; i++) {
-    if (options[allOptions[i]] === true) {
-      chosenOptions.push(allOptions[i]);
+  let newacceptableOptions = getpointsVsOptions(offers)[poinType];
+  let dataMap = getDataMap(offers);
+  getOffersPrices(offers);
+
+  for (let i = 0; i < offers.length; i++) {
+    if (offers[i].type === poinType) {
+      newacceptableOptions = offers[i].offers;
+      break;
     }
   }
 
   let element = ``;
-  for (let i = 0; i < acceptableOptions.length; i++) {
 
+  if (newacceptableOptions.length < 1) {
+    element = `<div class="event__available-offers"></div>`;
+    return element;
+  }
+
+  for (let i = 0; i < newacceptableOptions.length; i++) {
     element = element + `<div class="event__available-offers">
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox visually-hidden" id="${OPTIONS_MAP_REVERSE[acceptableOptions[i]]}" type="checkbox" name="event-offer-
-      ${optionShortly(i, acceptableOptions)}" ${options[acceptableOptions[i]] > 0 ? `checked` : ``}>
-      <label class="event__offer-label" for="${OPTIONS_MAP_REVERSE[acceptableOptions[i]]}">
-        <span class="event__offer-title">${acceptableOptions[i]}</span>
+      <input class="event__offer-checkbox visually-hidden" data-custom="${dataMap[newacceptableOptions[i].title]}" id="event-offer-${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}-${i}" type="checkbox" name="event-offer-
+      ${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}" ${options[newacceptableOptions[i].title] ? `checked` : ``}>
+      <label class="event__offer-label" for="event-offer-${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}-${i}">
+        <span class="event__offer-title">${newacceptableOptions[i].title}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${optionsPrice[acceptableOptions[i]]}</span>
+        <span class="event__offer-price">${newacceptableOptions[i].price}</span>
       </label>
     </div>`;
   }
   return element;
 };
 
-export const getRadio = (allTypes) => {
+export const getRadio = (allNames) => {
   let element = ``;
-  for (let i = 0; i < allTypes.length; i++) {
+  for (let i = 0; i < allNames.length; i++) {
     element = element + `<div class="event__type-item">
-    <input id="event-type-${allTypes[i].toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="-${allTypes[i].toLowerCase()}">
-    <label class="event__type-label  event__type-label--${allTypes[i].toLowerCase()}" for="event-type-${allTypes[i].toLowerCase()}-1">${allTypes[i]}</label>
+    <input id="event-type-${allNames[i].toLowerCase()}-${i}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="-${allNames[i].toLowerCase()}">
+    <label class="event__type-label  event__type-label--${allNames[i].toLowerCase()}" for="event-type-${allNames[i].toLowerCase()}-${i}">${allNames[i]}</label>
   </div>`;
   }
   return element;
 };
 
-const createEditPointTemplate = (data) => {
 
-  const {pointType, pointName, beginningTime, finishTime, cost, description, options} = data;
+const createEditPointTemplate = (data, destinations, offers) => {
+
+  const {
+    pointType,
+    pointName,
+    beginningTime,
+    finishTime,
+    cost,
+    description,
+    options,
+    isDisabled,
+    isSaving,
+    isDeleting
+  } = data;
 
   return `<li class="trip-events__item">
   <form class="event event--edit" action="#" method="post">
@@ -80,7 +90,7 @@ const createEditPointTemplate = (data) => {
           <span class="visually-hidden">Choose event type</span>
           <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType.toLowerCase()}.png" alt="Event type icon">
         </label>
-        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+        <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
         <div class="event__type-list">
           <fieldset class="event__type-group">
@@ -94,18 +104,18 @@ const createEditPointTemplate = (data) => {
         <label class="event__label  event__type-output" for="event-destination-1">
         ${pointType}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointName)}" list="destination-list-1">
+        <input class="event__input  event__input--destination" id="event-destination-1" type="text" ${isDisabled ? `disabled` : ``} name="event-destination" value="${he.encode(pointName)}" list="destination-list-1">
         <datalist id="destination-list-1">
-        ${getpointTypes(routePointsNames)}
+        ${getpointNames(destinations)}
         </datalist>
       </div>
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-1">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(beginningTime).format(`DD/MM/YY hh:mm`)}">
+        <input class="event__input  event__input--time" id="event-start-time-1" type="text" ${isDisabled ? `disabled` : ``} name="event-start-time" value="${dayjs(beginningTime).format(`DD/MM/YY hh:mm`)}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-1">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(finishTime).format(`DD/MM/YY hh:mm`)}">
+        <input class="event__input  event__input--time" id="event-end-time-1" type="text" ${isDisabled ? `disabled` : ``} name="event-end-time" value="${dayjs(finishTime).format(`DD/MM/YY hh:mm`)}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -113,11 +123,11 @@ const createEditPointTemplate = (data) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${cost}">
+        <input class="event__input  event__input--price" id="event-price-1" type="number" ${isDisabled ? `disabled` : ``} name="event-price" value="${cost}">
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">Delete</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? `disabled` : ``} >${isSaving ? `Saving...` : `Save`}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? `disabled` : ``}>${isDeleting ? `Deleting...` : `Delete`}</button>
       <button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
       </button>
@@ -125,7 +135,7 @@ const createEditPointTemplate = (data) => {
     <section class="event__details">
       <section class="event__section  event__section--offers">
         <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-        ${getOptions(pointType, options, routePointsOptionsPrice)}
+        ${getOptions(pointType, options, offers)}
         </section>
 
       <section class="event__section  event__section--destination">
@@ -142,18 +152,28 @@ export default class EditPointView extends Smart {
   static parsePointToData(point) {
     return Object.assign(
         {},
-        point
+        point,
+        {
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        }
     );
   }
 
   static parseDataToPoint(data) {
     let point = Object.assign({}, data);
+    delete point.isDeleting;
+    delete point.isSaving;
+    delete point.isDisabled;
     return point;
   }
 
-  constructor(point) {
+  constructor(point, destinations, offers) {
     super();
     this._data = EditPointView.parsePointToData(point);
+    this._destinations = destinations;
+    this._offers = offers;
     this._startDatepicker = null;
     this._finishDatepicker = null;
 
@@ -187,7 +207,7 @@ export default class EditPointView extends Smart {
   }
 
   getTemplate() {
-    return createEditPointTemplate(this._data);
+    return createEditPointTemplate(this._data, this._destinations, this._offers);
   }
 
   setClickRollupHandler(callback) {
@@ -229,10 +249,21 @@ export default class EditPointView extends Smart {
     this.getElement().querySelector(`.event__input--price`).addEventListener(`change`, this._insertPriceHandler);
   }
 
+  _getPointDescription(pointName) {
+    let descriprion;
+    for (let i = 0; i < this._destinations.length; i++) {
+      if (String(this._destinations[i].name) === String(pointName)) {
+        descriprion = this._destinations[i].description;
+        break;
+      }
+    }
+    return descriprion;
+  }
+
   _changePointNameHandler(evt) {
     this.updateData({
       pointName: evt.target.value,
-      description: descriptions[evt.target.value]
+      description: this._getPointDescription([evt.target.value])
     });
   }
 
@@ -251,16 +282,8 @@ export default class EditPointView extends Smart {
 
     if (evt.target.checked) {
       this.updateData({
-        pointType: POINT_TYPES_MAP[evt.target.value],
-        options: {
-          "Switch to comfort": false,
-          "Add meal": false,
-          "Choose seats": false,
-          "Travel by train": false,
-          "Order Uber": false,
-          "Add luggage": false,
-          "Rent a car": false
-        }
+        pointType: evt.target.value.slice(1),
+        options: {}
       });
     }
   }
@@ -272,9 +295,12 @@ export default class EditPointView extends Smart {
     }
     evt.preventDefault();
 
-    let currentOptions = Object.assign({}, this._data.options);
+    let reverseMap = getReverseMap(this._offers);
+    let prices = getOffersPrices(this._offers);
 
-    currentOptions[OPTIONS_MAP[evt.target.id]] = evt.target.checked ? routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]] : false;
+    let currentOptions = Object.assign({}, this._data.options);
+    // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
+    currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 
     this.updateData({
       options: currentOptions

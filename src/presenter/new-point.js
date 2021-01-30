@@ -13,8 +13,10 @@ import NewPointView from "../view/edit_new_point.js";
 
 export default class NewPointPreseter {
 
-  constructor(changePoint) {
+  constructor(changePoint, offers, destinations) {
     this._changePoint = changePoint;
+    this._offers = offers;
+    this._destinations = destinations;
 
     this._addingPointComponent = null;
     this._swithchMenuToTasks = null;
@@ -29,7 +31,6 @@ export default class NewPointPreseter {
     this._container = container;
     this._swithchMenuToTasks = callback;
 
-
     if (this._swithchMenuToTasks !== null) {
       this._swithchMenuToTasks();
     }
@@ -37,12 +38,24 @@ export default class NewPointPreseter {
     if (this._addingPointComponent !== null) {
       return;
     }
-    this._addingPointComponent = new NewPointView(blankPoint());
+    this._addingPointComponent = new NewPointView(blankPoint(), this._destinations, this._offers);
     this._addingPointComponent.setFormSubmitHandler(this._handleFormSubmit);
     this._addingPointComponent.setClickDeleteHandler(this._handleDeleteClick);
 
     render(RenderTypes.PREPEND, this._addingPointComponent, this._container);
     document.addEventListener(`keydown`, this._onEscKeyDown);
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this._addingPointComponent.updateData({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false
+      });
+    };
+
+    this._addingPointComponent.shake(resetFormState);
   }
 
   _handleFormSubmit(newPoint) {
@@ -65,6 +78,13 @@ export default class NewPointPreseter {
       evt.preventDefault();
       this.destroy();
     }
+  }
+
+  setSaving() {
+    this._addingPointComponent.updateData({
+      isDisabled: true,
+      isSaving: true
+    });
   }
 
   destroy() {

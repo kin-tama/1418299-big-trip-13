@@ -1,30 +1,41 @@
 import dayjs from "dayjs";
 import flatpickr from "flatpickr";
 import he from "he";
-
-import {
-  routePointsNames,
-  routePointsOptionsPrice,
-  routePointsTypes,
-  POINT_TYPES_MAP,
-  OPTIONS_MAP,
-  descriptions
-} from "../data.js";
-import {
-  getpointTypes,
-  getOptions,
-  getRadio
-} from "./edit_existing_point.js";
+import {routePointsTypes} from "../data.js";
+import {getOptions, getRadio, getpointNames} from "./edit_existing_point.js";
+import {getReverseMap, getOffersPrices} from '../utils/pointUtil.js';
 import Smart from "./smart.js";
 
-const createNewPointTemplate = (data) => {
 
-  const {pointType, pointName, beginningTime, finishTime, cost, description, options, photos} = data;
+const createNewPointTemplate = (data, destinations, offers) => {
 
-  const getPhotos = (allPhotos) => {
+  const {
+    pointType,
+    pointName,
+    beginningTime,
+    finishTime,
+    cost,
+    description,
+    options,
+    isDisabled,
+    isSaving
+  } = data;
+
+  const getPhotos = (name) => {
     let element = ``;
-    for (let i = 0; i < allPhotos.length; i++) {
-      element = element + `<img class="event__photo" src="${allPhotos[i]}" alt="Event photo">`;
+    let photos = [];
+    let photosDescription = [];
+    for (let i = 0; i < destinations.length; i++) {
+      if (name === destinations[i].name) {
+        destinations[i].pictures.forEach((item) => {
+          photos.push(item.src);
+          photosDescription.push(item.description);
+        });
+      }
+    }
+
+    for (let i = 0; i < photos.length; i++) {
+      element = element + `<img class="event__photo" src="${photos[i]}" alt="${photosDescription[i]}">`;
     }
     return element;
   };
@@ -37,7 +48,7 @@ const createNewPointTemplate = (data) => {
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType.toLowerCase()}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox">
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-1" type="checkbox" ${isDisabled ? `disabled` : ``}>
 
           <div class="event__type-list">
             <fieldset class="event__type-group">
@@ -51,18 +62,18 @@ const createNewPointTemplate = (data) => {
           <label class="event__label  event__type-output" for="event-destination-1">
           ${pointType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${he.encode(pointName)}" list="destination-list-1">
+          <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" ${isDisabled ? `disabled` : ``} value="${he.encode(pointName)}" list="destination-list-1">
           <datalist id="destination-list-1">
-          ${getpointTypes(routePointsNames)}
+          ${getpointNames(destinations)}
           </datalist>
         </div>
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-1">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" value="${dayjs(beginningTime).format(`DD/MM/YY hh:mm`)}">
+          <input class="event__input  event__input--time" id="event-start-time-1" type="text" name="event-start-time" ${isDisabled ? `disabled` : ``} value="${dayjs(beginningTime).format(`DD/MM/YY hh:mm`)}">
           &mdash;
           <label class="visually-hidden" for="event-end-time-1">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" value="${dayjs(finishTime).format(`DD/MM/YY hh:mm`)}">
+          <input class="event__input  event__input--time" id="event-end-time-1" type="text" name="event-end-time" ${isDisabled ? `disabled` : ``} value="${dayjs(finishTime).format(`DD/MM/YY hh:mm`)}">
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -70,17 +81,17 @@ const createNewPointTemplate = (data) => {
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" value="${cost}">
+          <input class="event__input  event__input--price" id="event-price-1" type="number" name="event-price" ${isDisabled ? `disabled` : ``} value="${cost}">
         </div>
 
-        <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+        <button class="event__save-btn  btn  btn--blue" type="submit"> ${isSaving ? `Saving...` : `Save`}</button>
         <button class="event__reset-btn" type="reset">Cancel</button>
       </header>
       <section class="event__details">
         <section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
-          ${getOptions(pointType, options, routePointsOptionsPrice)}
+          ${getOptions(pointType.toLowerCase(), options, offers)}
           </div>
         </section>
 
@@ -90,7 +101,7 @@ const createNewPointTemplate = (data) => {
 
           <div class="event__photos-container">
             <div class="event__photos-tape">
-            ${getPhotos(photos)}
+            ${getPhotos(pointName)}
             </div>
           </div>
         </section>
@@ -104,21 +115,30 @@ export default class NewPointView extends Smart {
   static parsePointToData(point) {
     return Object.assign(
         {},
-        point
+        point,
+        {
+          isDisabled: false,
+          isSaving: false,
+          isDeleting: false
+        }
     );
   }
 
   static parseDataToPoint(data) {
     let point = Object.assign({}, data);
+    delete point.isDeleting;
+    delete point.isSaving;
+    delete point.isDisabled;
     return point;
   }
 
-  constructor(point) {
+  constructor(point, destinations, offers) {
     super();
     this._data = NewPointView.parsePointToData(point);
     this._startDatepicker = null;
     this._finishDatepicker = null;
-
+    this._offers = offers;
+    this._destinations = destinations;
     this._formSubmitHandler = this._formSubmitHandler.bind(this);
     this._clickDeleteHandler = this._clickDeleteHandler.bind(this);
     this._changePointNameHandler = this._changePointNameHandler.bind(this);
@@ -131,9 +151,8 @@ export default class NewPointView extends Smart {
   }
 
   getTemplate() {
-    return createNewPointTemplate(this._data);
+    return createNewPointTemplate(this._data, this._destinations, this._offers);
   }
-
 
   setClickDeleteHandler(callback) {
     this._callback.delete = callback;
@@ -167,10 +186,21 @@ export default class NewPointView extends Smart {
     this.setFormSubmitHandler(this._callback.formSubmit);
   }
 
+  _getPointDescription(pointName) {
+    let description;
+    for (let i = 0; i < this._destinations.length; i++) {
+      if (String(this._destinations[i].name) === String(pointName)) {
+        description = this._destinations[i].description;
+        break;
+      }
+    }
+    return description;
+  }
+
   _changePointNameHandler(evt) {
     this.updateData({
       pointName: evt.target.value,
-      description: descriptions[evt.target.value]
+      description: this._getPointDescription([evt.target.value])
     });
   }
 
@@ -182,16 +212,8 @@ export default class NewPointView extends Smart {
 
     if (evt.target.checked) {
       this.updateData({
-        pointType: POINT_TYPES_MAP[evt.target.value],
-        options: {
-          "Switch to comfort": false,
-          "Add meal": false,
-          "Choose seats": false,
-          "Travel by train": false,
-          "Order Uber": false,
-          "Add luggage": false,
-          "Rent a car": false
-        }
+        pointType: evt.target.value.slice(1),
+        options: {}
       });
     }
   }
@@ -210,9 +232,12 @@ export default class NewPointView extends Smart {
     }
     evt.preventDefault();
 
-    let currentOptions = Object.assign({}, this._data.options);
+    let reverseMap = getReverseMap(this._offers);
+    let prices = getOffersPrices(this._offers);
 
-    currentOptions[OPTIONS_MAP[evt.target.id]] = evt.target.checked ? routePointsOptionsPrice[OPTIONS_MAP[evt.target.id]] : false;
+    let currentOptions = Object.assign({}, this._data.options);
+    // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
+    currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 
     this.updateData({
       options: currentOptions
@@ -229,13 +254,15 @@ export default class NewPointView extends Smart {
       this._startDatepicker.destroy();
       this._startDatepicker = null;
     }
+
     this._startDatepicker = flatpickr(
         this.getElement().querySelector(`#event-start-time-1`),
         {
           enableTime: true,
+          allowInput: true,
           altFormat: `d/m/y H:i`,
           dateFormat: `d/m/y H:i`,
-          defaultDate: 0,
+          defaultDate: this._data.beginningTime,
           onChange: this._startDateChangeHandler
         }
     );
@@ -253,7 +280,7 @@ export default class NewPointView extends Smart {
           enableTime: true,
           altFormat: `d/m/y H:i`,
           dateFormat: `d/m/y H:i`,
-          defaultDate: 0,
+          defaultDate: this._data.finishTime,
           onChange: this._finishDateChangeHandler
         }
     );
