@@ -21,7 +21,7 @@ const tripMainTripControlsHeader = tripMainTripControls.querySelector(`.trip-mai
 const tripEvents = document.querySelector(`.trip-events`);
 const tripEventsSecondHeader = tripEvents.querySelector(`.trip-events:last-child`);
 
-const boardPresenter = new BoardPresenter(tripEvents, pointsModel, filterModel, api);
+const boardPresenter = new BoardPresenter(tripEvents, pointsModel, filterModel, api, menuViewComponent);
 boardPresenter.init();
 const filterPresenter = new FilterPresenter(tripMainTripControls, tripEventsSecondHeader, filterModel);
 filterPresenter.init();
@@ -35,7 +35,6 @@ let statisticsComponent = null;
 const handleSiteMenuClick = (menuItem) => {
   switch (menuItem) {
     case MenuItem.NEW_POINT:
-      menuViewComponent.blockAddButton();
       remove(statisticsComponent);
       boardPresenter.destroy();
       filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);

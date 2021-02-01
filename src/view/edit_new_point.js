@@ -208,6 +208,7 @@ export default class NewPointView extends Smart {
         description = this._destinations[i].description;
         break;
       }
+      description = ``;
     }
     return description;
   }
@@ -313,4 +314,3 @@ export default class NewPointView extends Smart {
     });
   }
 }
-

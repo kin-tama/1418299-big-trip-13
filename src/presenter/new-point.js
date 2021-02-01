@@ -1,5 +1,4 @@
 import {blankPoint} from "../utils/pointUtil.js";
-import {menuViewComponent} from "../main.js";
 
 import {
   UpdateType,
@@ -15,10 +14,11 @@ import NewPointView from "../view/edit_new_point.js";
 
 export default class NewPointPreseter {
 
-  constructor(changePoint, offers, destinations) {
+  constructor(changePoint, offers, destinations, menuViewComponent) {
     this._changePoint = changePoint;
     this._offers = offers;
     this._destinations = destinations;
+    this._menuViewComponent = menuViewComponent;
 
     this._addingPointComponent = null;
     this._swithchMenuToTasks = null;
@@ -46,6 +46,7 @@ export default class NewPointPreseter {
 
     render(RenderTypes.PREPEND, this._addingPointComponent, this._container);
     document.addEventListener(`keydown`, this._onEscKeyDown);
+    this._menuViewComponent.blockAddButton();
   }
 
   setAborting() {
@@ -76,10 +77,10 @@ export default class NewPointPreseter {
     this._addingPointComponent = null;
 
     document.removeEventListener(`keydown`, this._onEscKeyDown);
+    this._menuViewComponent.unBlockAddButton();
   }
 
   _handleFormSubmit(newPoint) {
-    menuViewComponent.unBlockAddButton();
     this._changePoint(
         UserAction.ADD_POINT,
         UpdateType.MINOR,
@@ -88,13 +89,11 @@ export default class NewPointPreseter {
 
   _handleDeleteClick() {
     this.destroy();
-    menuViewComponent.unBlockAddButton();
   }
 
   _onEscKeyDown(evt) {
     if (evt.key === `Escape` || evt.key === `Esc`) {
       evt.preventDefault();
-      menuViewComponent.unBlockAddButton();
       this.destroy();
     }
   }

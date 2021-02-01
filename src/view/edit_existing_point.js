@@ -250,14 +250,15 @@ export default class EditPointView extends Smart {
   }
 
   _getPointDescription(pointName) {
-    let descriprion;
+    let description;
     for (let i = 0; i < this._destinations.length; i++) {
       if (String(this._destinations[i].name) === String(pointName)) {
-        descriprion = this._destinations[i].description;
+        description = this._destinations[i].description;
         break;
       }
+      description = ``;
     }
-    return descriprion;
+    return description;
   }
 
   _changePointNameHandler(evt) {

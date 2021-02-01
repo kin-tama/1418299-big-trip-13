@@ -26,7 +26,7 @@ import NewPointPreseter from "./new-point.js";
 
 export default class Board {
 
-  constructor(pointsContainer, pointsModel, filterModel, api) {
+  constructor(pointsContainer, pointsModel, filterModel, api, menuViewComponent) {
     this._pointsContainer = pointsContainer;
     this._isLoading = true;
     this._api = api;
@@ -40,6 +40,7 @@ export default class Board {
     this._handleSortTypeChange = this._handleSortTypeChange.bind(this);
     this._handleViewAction = this._handleViewAction.bind(this);
     this._handleModelEvent = this._handleModelEvent.bind(this);
+    this._menuView = menuViewComponent;
   }
 
   init() {
@@ -50,7 +51,7 @@ export default class Board {
 
     this._pointsModel.addObserver(this._handleModelEvent);
     this._filterModel.addObserver(this._handleModelEvent);
-    this._newPointPreseter = new NewPointPreseter(this._handleViewAction, this._offers, this._destinations);
+    this._newPointPreseter = new NewPointPreseter(this._handleViewAction, this._offers, this._destinations, this._menuView);
 
     this._renderAll();
   }
