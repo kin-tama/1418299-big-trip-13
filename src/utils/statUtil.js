@@ -1,7 +1,7 @@
 import dayjs from "dayjs";
 
 export const countCost = (data) => {
-  let output = {};
+  const output = {};
   for (let i = 0; i < data.length; i++) {
     if (output[data[i].pointType.toUpperCase()]) {
       output[data[i].pointType.toUpperCase()] += data[i].cost;
@@ -13,7 +13,7 @@ export const countCost = (data) => {
 };
 
 export const countTypes = (data) => {
-  let output = {};
+  const output = {};
   for (let i = 0; i < data.length; i++) {
     if (output[data[i].pointType.toUpperCase()]) {
       output[data[i].pointType.toUpperCase()]++;
@@ -25,7 +25,7 @@ export const countTypes = (data) => {
 };
 
 export const countTtime = (data) => {
-  let output = {};
+  const output = {};
   for (let i = 0; i < data.length; i++) {
     if (output[data[i].pointType.toUpperCase()]) {
       output[data[i].pointType.toUpperCase()] += dayjs(data[i].finishTime).diff(dayjs(data[i].beginningTime), `m`);
@@ -34,7 +34,7 @@ export const countTtime = (data) => {
     }
   }
 
-  for (let element in output) {
+  for (const element in output) {
     if (output.hasOwnProperty(element)) {
       output[element] = Math.round(output[element] / 1440);
     }

@@ -162,7 +162,7 @@ export default class EditPointView extends Smart {
   }
 
   static parseDataToPoint(data) {
-    let point = Object.assign({}, data);
+    const point = Object.assign({}, data);
     delete point.isDeleting;
     delete point.isSaving;
     delete point.isDisabled;
@@ -270,7 +270,7 @@ export default class EditPointView extends Smart {
   _insertPriceHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      cost: Number(evt.target.value),
+      cost: Number(Math.abs(Math.round(evt.target.value)))
     });
   }
 
@@ -295,10 +295,10 @@ export default class EditPointView extends Smart {
     }
     evt.preventDefault();
 
-    let reverseMap = getReverseMap(this._offers);
-    let prices = getOffersPrices(this._offers);
+    const reverseMap = getReverseMap(this._offers);
+    const prices = getOffersPrices(this._offers);
 
-    let currentOptions = Object.assign({}, this._data.options);
+    const currentOptions = Object.assign({}, this._data.options);
     // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
     currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 

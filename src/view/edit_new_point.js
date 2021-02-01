@@ -22,8 +22,8 @@ const createNewPointTemplate = (data, destinations, offers) => {
 
   const getPhotos = (name) => {
     let element = ``;
-    let photos = [];
-    let photosDescription = [];
+    const photos = [];
+    const photosDescription = [];
     for (let i = 0; i < destinations.length; i++) {
       if (name === destinations[i].name) {
         destinations[i].pictures.forEach((item) => {
@@ -124,7 +124,7 @@ export default class NewPointView extends Smart {
   }
 
   static parseDataToPoint(data) {
-    let point = Object.assign({}, data);
+    const point = Object.assign({}, data);
     delete point.isDeleting;
     delete point.isSaving;
     delete point.isDisabled;
@@ -186,7 +186,6 @@ export default class NewPointView extends Smart {
     this._callback.formSubmit(NewPointView.parseDataToPoint(this._data));
   }
 
-  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
   _setInnerHandlers() {
     this.getElement().querySelector(`.event__type-group`).addEventListener(`change`, this._choosePointTypeHandler);
     this.getElement().querySelector(`.event__available-offers`).addEventListener(`change`, this._choosePointOptionsHandler);
@@ -237,7 +236,7 @@ export default class NewPointView extends Smart {
   _insertPriceHandler(evt) {
     evt.preventDefault();
     this.updateData({
-      cost: Number(evt.target.value),
+      cost: Number(Math.abs(Math.round(evt.target.value))),
     });
   }
 
@@ -248,10 +247,10 @@ export default class NewPointView extends Smart {
     }
     evt.preventDefault();
 
-    let reverseMap = getReverseMap(this._offers);
-    let prices = getOffersPrices(this._offers);
+    const reverseMap = getReverseMap(this._offers);
+    const prices = getOffersPrices(this._offers);
 
-    let currentOptions = Object.assign({}, this._data.options);
+    const currentOptions = Object.assign({}, this._data.options);
     // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
     currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 

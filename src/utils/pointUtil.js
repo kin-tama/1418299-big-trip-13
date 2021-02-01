@@ -15,7 +15,7 @@ export const isCostEqual = (costA, costB) => {
 };
 
 export const getpointsVsOptions = (data) => {
-  let pointsVsOptions = {};
+  const pointsVsOptions = {};
   data.forEach((element) => {
     pointsVsOptions[element.type] = element.offers;
   });
@@ -23,13 +23,13 @@ export const getpointsVsOptions = (data) => {
 };
 
 export const getDataMap = (data) => {
-  let optionsList = [];
+  const optionsList = [];
   data.forEach((element) => {
     (element.offers.forEach((item) => {
       optionsList.push(item.title);
     }));
   });
-  let dataMap = {};
+  const dataMap = {};
   for (let i = 0; i < optionsList.length; i++) {
     dataMap[optionsList[i]] = optionsList[i].split(` `).join(``);
   }
@@ -37,13 +37,13 @@ export const getDataMap = (data) => {
 };
 
 export const getReverseMap = (data) => {
-  let optionsList = [];
+  const optionsList = [];
   data.forEach((element) => {
     (element.offers.forEach((item) => {
       optionsList.push(item.title);
     }));
   });
-  let dataMap = {};
+  const dataMap = {};
   for (let i = 0; i < optionsList.length; i++) {
     dataMap[optionsList[i].split(` `).join(``)] = optionsList[i];
   }
@@ -51,7 +51,7 @@ export const getReverseMap = (data) => {
 };
 
 export const getOffersPrices = (data) => {
-  let prices = {};
+  const prices = {};
   data.forEach((element) => {
     (element.offers.forEach((item) => {
       prices[item.title] = item.price;
@@ -74,7 +74,7 @@ export const blankPoint = () => {
       "Upgrade to comfort class": 50
     },
     photos: [],
-    photoDescription: [],
+    photosDescription: [],
     isFavorite: false,
   };
 };

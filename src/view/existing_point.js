@@ -8,6 +8,26 @@ const createExistingPointTemplate = (point) => {
     let hours = finish.diff(start, `hour`) - (days * 24);
     let minutes = finish.diff(start, `minute`) - ((days * 24 + hours) * 60);
 
+    if (days > 0 && days < 10) {
+      days = `0${days}`;
+    }
+
+    if (hours > 0 && hours < 10) {
+      hours = `0${hours}`;
+    }
+
+    if (days > 0 && hours < 1) {
+      hours = `00`;
+    }
+
+    if (minutes > 0 && minutes < 10) {
+      minutes = `0${minutes}`;
+    }
+
+    if (minutes < 1 && (days > 0 || hours > 0)) {
+      minutes = `00`;
+    }
+
     return `${days ? days + `D` : ``} ${hours ? hours + `H ` : ``} ${minutes ? minutes + `M ` : ``}`;
   };
 
@@ -16,7 +36,7 @@ const createExistingPointTemplate = (point) => {
       return ``;
     }
 
-    let allOptions = Object.keys(offers);
+    const allOptions = Object.keys(offers);
 
 
     let element = ``;

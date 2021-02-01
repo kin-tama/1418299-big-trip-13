@@ -44,6 +44,14 @@ export default class MenuView extends AbstractView {
     }
   }
 
+  blockAddButton() {
+    this._newPointButton.disabled = true;
+  }
+
+  unBlockAddButton() {
+    this._newPointButton.disabled = false;
+  }
+
   _tableClickHandler(evt) {
     evt.preventDefault();
     this._callback.menuClick(MenuItem.TABLE);

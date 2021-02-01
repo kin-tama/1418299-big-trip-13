@@ -31,7 +31,7 @@ export const render = (type, child, container, referenceElement) => {
 };
 
 export const createElement = (template) => {
-  let newElement = document.createElement(`div`);
+  const newElement = document.createElement(`div`);
   newElement.innerHTML = template;
   return newElement.firstChild;
 };

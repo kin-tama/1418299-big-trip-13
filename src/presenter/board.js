@@ -11,6 +11,7 @@ import {
 } from "../const.js";
 import {filterUtil} from "../utils/filterUtil.js";
 import {
+  sortDuration,
   sortDate,
   sortCost
 } from "../utils/sort.js";
@@ -78,14 +79,18 @@ export default class Board {
     this._offers = offers;
   }
 
+  // тут надо дописать сортировку по дате и переписать сортировку по длительности
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
     const filtredPoints = [...filterUtil[filterType](points)];
 
     switch (this._currentSortType) {
-      case SortType.TIME:
+      case SortType.DEFAULT:
         return filtredPoints.sort(sortDate);
+
+      case SortType.TIME:
+        return filtredPoints.sort(sortDuration);
 
       case SortType.PRICE:
         return filtredPoints.sort(sortCost);
@@ -105,6 +110,9 @@ export default class Board {
   _handleViewAction(actionType, updateType, update) {
     switch (actionType) {
       case UserAction.CHANGE_POINT:
+        if (update.beginningTime > update.finishTime) {
+          throw new Error(`Incorrect date: the date of the beginning must be earlier than finish date`);
+        }
         this._pointPresenter[update.id].setViewState(PointPresenterViewState.SAVING);
         this._api.updatePoint(update).then((response) => {
           this._pointsModel.updatePoint(updateType, response);
@@ -114,6 +122,10 @@ export default class Board {
         });
         break;
       case UserAction.ADD_POINT:
+        if (update.beginningTime > update.finishTime) {
+          this._newPointPreseter.setAborting();
+          throw new Error(`Incorrect date: the date of the beginning must be earlier than finish date`);
+        }
         this._newPointPreseter.setSaving();
         this._api.addPoint(update).then((response) => {
           this._pointsModel.addPoint(updateType, response);
