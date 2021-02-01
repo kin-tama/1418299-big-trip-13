@@ -23,30 +23,22 @@ export const getpointsVsOptions = (data) => {
 };
 
 export const getDataMap = (data) => {
-  const optionsList = [];
-  data.forEach((element) => {
-    (element.offers.forEach((item) => {
-      optionsList.push(item.title);
-    }));
-  });
+  const optionsList = data.map((element) => element.offers.map((item) => item.title)).flat(1);
   const dataMap = {};
-  for (let i = 0; i < optionsList.length; i++) {
-    dataMap[optionsList[i]] = optionsList[i].split(` `).join(``);
-  }
+  optionsList.forEach((element) => {
+    dataMap[element] = element.split(` `).join(``);
+  });
   return dataMap;
 };
 
 export const getReverseMap = (data) => {
-  const optionsList = [];
-  data.forEach((element) => {
-    (element.offers.forEach((item) => {
-      optionsList.push(item.title);
-    }));
-  });
+
+  const optionsList = data.map((element) => element.offers.map((item) => item.title)).flat(1);
   const dataMap = {};
-  for (let i = 0; i < optionsList.length; i++) {
-    dataMap[optionsList[i].split(` `).join(``)] = optionsList[i];
-  }
+  optionsList.forEach((element) => {
+    dataMap[element.split(` `).join(``)] = element;
+  });
+
   return dataMap;
 };
 
@@ -70,12 +62,9 @@ export const blankPoint = () => {
     cost: 0,
     description: ``,
     options: {
-      "Choose meal": 180,
-      "Upgrade to comfort class": 50
     },
     photos: [],
     photosDescription: [],
     isFavorite: false,
   };
 };
-

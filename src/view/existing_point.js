@@ -38,14 +38,13 @@ const createExistingPointTemplate = (point) => {
 
     const allOptions = Object.keys(offers);
 
-
     let element = ``;
-    for (let i = 0; i < allOptions.length; i++) {
-      if (offers[allOptions[i]] > 0) {
+    for (const option of allOptions) {
+      if (offers[option] > 0) {
         element = element + `<li class="event__offer">
-        <span class="event__offer-title">${allOptions[i]}</span>
+        <span class="event__offer-title">${option}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offers[allOptions[i]]}</span>
+        <span class="event__offer-price">${offers[option]}</span>
         </li>`;
       }
     }

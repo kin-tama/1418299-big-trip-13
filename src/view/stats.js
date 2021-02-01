@@ -9,10 +9,9 @@ const renderMoneyChart = (moneyCtx, points) => {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      // labels: [`TAXI`, `BUS`, `TRAIN`, `SHIP`, `TRANSPORT`, `DRIVE`], // вставить свои данные
-      labels: Object.keys(countCost(points)), // вставить свои данные
+      labels: Object.keys(countCost(points)),
       datasets: [{
-        data: Object.values(countCost(points)), // вставить свои данные
+        data: Object.values(countCost(points)),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -77,9 +76,9 @@ const renderTypeChart = (typeCtx, points) => {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: Object.keys(countTypes(points)), // вставить свои данные
+      labels: Object.keys(countTypes(points)),
       datasets: [{
-        data: Object.values(countTypes(points)), // вставить свои данные
+        data: Object.values(countTypes(points)),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`
@@ -144,9 +143,9 @@ const renderTimeChart = (timeCtx, points) => {
     plugins: [ChartDataLabels],
     type: `horizontalBar`,
     data: {
-      labels: Object.keys(countTtime(points)), // вставить свои данные
+      labels: Object.keys(countTtime(points)),
       datasets: [{
-        data: Object.values(countTtime(points)), // вставить свои данные
+        data: Object.values(countTtime(points)),
         backgroundColor: `#ffffff`,
         hoverBackgroundColor: `#ffffff`,
         anchor: `start`

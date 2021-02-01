@@ -2,23 +2,26 @@ import dayjs from "dayjs";
 
 export const countCost = (data) => {
   const output = {};
-  for (let i = 0; i < data.length; i++) {
-    if (output[data[i].pointType.toUpperCase()]) {
-      output[data[i].pointType.toUpperCase()] += data[i].cost;
+
+  for (const element of data) {
+    if (output[element.pointType.toUpperCase()]) {
+      output[element.pointType.toUpperCase()] += element.cost;
     } else {
-      output[data[i].pointType.toUpperCase()] = data[i].cost;
+      output[element.pointType.toUpperCase()] = element.cost;
     }
   }
+
   return output;
 };
 
 export const countTypes = (data) => {
   const output = {};
-  for (let i = 0; i < data.length; i++) {
-    if (output[data[i].pointType.toUpperCase()]) {
-      output[data[i].pointType.toUpperCase()]++;
+
+  for (const element of data) {
+    if (output[element.pointType.toUpperCase()]) {
+      output[element.pointType.toUpperCase()]++;
     } else {
-      output[data[i].pointType.toUpperCase()] = 1;
+      output[element.pointType.toUpperCase()] = 1;
     }
   }
   return output;
@@ -26,11 +29,12 @@ export const countTypes = (data) => {
 
 export const countTtime = (data) => {
   const output = {};
-  for (let i = 0; i < data.length; i++) {
-    if (output[data[i].pointType.toUpperCase()]) {
-      output[data[i].pointType.toUpperCase()] += dayjs(data[i].finishTime).diff(dayjs(data[i].beginningTime), `m`);
+
+  for (const element of data) {
+    if (output[element.pointType.toUpperCase()]) {
+      output[element.pointType.toUpperCase()] += dayjs(element.finishTime).diff(dayjs(element.beginningTime), `m`);
     } else {
-      output[data[i].pointType.toUpperCase()] = dayjs(data[i].finishTime).diff(dayjs(data[i].beginningTime), `m`);
+      output[element.pointType.toUpperCase()] = dayjs(element.finishTime).diff(dayjs(element.beginningTime), `m`);
     }
   }
 

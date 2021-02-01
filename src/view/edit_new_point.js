@@ -22,19 +22,16 @@ const createNewPointTemplate = (data, destinations, offers) => {
 
   const getPhotos = (name) => {
     let element = ``;
-    const photos = [];
-    const photosDescription = [];
-    for (let i = 0; i < destinations.length; i++) {
-      if (name === destinations[i].name) {
-        destinations[i].pictures.forEach((item) => {
-          photos.push(item.src);
-          photosDescription.push(item.description);
-        });
-      }
+    let photos = [];
+    let photosDescription = [];
+
+    if (name) {
+      photos = destinations.find((destination) => destination.name === name).pictures.map((picture) => picture.src);
+      photosDescription = destinations.find((destination) => destination.name === name).pictures.map((picture) => picture.description);
     }
 
-    for (let i = 0; i < photos.length; i++) {
-      element = element + `<img class="event__photo" src="${photos[i]}" alt="${photosDescription[i]}">`;
+    for (const [i, photo] of photos.entries()) {
+      element = element + `<img class="event__photo" src="${photo}" alt="${photosDescription[i]}">`;
     }
     return element;
   };
@@ -163,7 +160,6 @@ export default class NewPointView extends Smart {
 
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
-    // по событию submit на форме вызывается this._formSubmitHandler
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
@@ -202,13 +198,12 @@ export default class NewPointView extends Smart {
   }
 
   _getPointDescription(pointName) {
-    let description;
-    for (let i = 0; i < this._destinations.length; i++) {
-      if (String(this._destinations[i].name) === String(pointName)) {
-        description = this._destinations[i].description;
+    let description = ``;
+    for (const element of this._destinations) {
+      if (String(element.name) === String(pointName)) {
+        description = element.description;
         break;
       }
-      description = ``;
     }
     return description;
   }
@@ -242,7 +237,6 @@ export default class NewPointView extends Smart {
   }
 
   _choosePointOptionsHandler(evt) {
-    // изменения options
     if (evt.target.type !== `checkbox`) {
       return;
     }
@@ -252,7 +246,6 @@ export default class NewPointView extends Smart {
     const prices = getOffersPrices(this._offers);
 
     const currentOptions = Object.assign({}, this._data.options);
-    // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
     currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 
     this.updateData({

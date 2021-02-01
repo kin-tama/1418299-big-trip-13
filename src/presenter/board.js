@@ -49,8 +49,8 @@ export default class Board {
     this._listComponent = new ListView();
     this._emptyComponent = new EmptyView();
 
-    this._pointsModel.addObserver(this._handleModelEvent);
-    this._filterModel.addObserver(this._handleModelEvent);
+    this._pointsModel.add(this._handleModelEvent);
+    this._filterModel.add(this._handleModelEvent);
     this._newPointPreseter = new NewPointPreseter(this._handleViewAction, this._offers, this._destinations, this._menuView);
 
     this._renderAll();
@@ -60,11 +60,11 @@ export default class Board {
     this._currentSortType = SortType.DEFAULT;
     this._filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
 
-    this._newPointPreseter.init(this._tripList, callback);
+    this._newPointPreseter.init(this._listComponent, callback);
   }
 
   destroy() {
-    this._clearBoard({resetSortType: true});
+    this._clearAll({resetSortType: true});
 
     remove(this._listComponent);
 
@@ -80,7 +80,6 @@ export default class Board {
     this._offers = offers;
   }
 
-  // тут надо дописать сортировку по дате и переписать сортировку по длительности
   _getPoints() {
     const filterType = this._filterModel.getFilter();
     const points = this._pointsModel.getPoints();
@@ -104,7 +103,7 @@ export default class Board {
       return;
     }
     this._currentSortType = sortType;
-    this._clearBoard();
+    this._clearAll();
     this._renderAll();
   }
 
@@ -153,11 +152,11 @@ export default class Board {
         this._pointPresenter[data.id].init(data);
         break;
       case UpdateType.MINOR:
-        this._clearBoard();
+        this._clearAll();
         this._renderAll();
         break;
       case UpdateType.MAJOR:
-        this._clearBoard({resetSortType: true});
+        this._clearAll({resetSortType: true});
         this._renderAll();
         break;
       case UpdateType.INIT:
@@ -177,7 +176,7 @@ export default class Board {
   }
 
   _renderLoading() {
-    render(RenderTypes.APPEND, this._loadingComponent, this._tripList);
+    render(RenderTypes.APPEND, this._loadingComponent, this._listComponent);
   }
 
   _renderSort() {
@@ -192,15 +191,13 @@ export default class Board {
 
   _renderList() {
     render(RenderTypes.APPEND, this._listComponent, this._pointsContainer);
-    this._tripList = this._pointsContainer.querySelector(`.trip-events__list`);
   }
 
   _renderEmptyMessage() {
-    render(RenderTypes.APPEND, this._emptyComponent, this._tripList);
+    render(RenderTypes.APPEND, this._emptyComponent, this._listComponent);
   }
 
   _renderPoints() {
-    // рендеринг всех точек: если длина масива точек > 1, отрендерить все точки, иначе - пустую страницу
     const points = this._getPoints();
     if (points.length > 0) {
       points.forEach((point) => this._renderPoint(point));
@@ -211,7 +208,7 @@ export default class Board {
   }
 
   _renderPoint(point) {
-    const pointPresenter = new PointPresenter(this._tripList, this._handleViewAction, this._handleModeChange, this._destinations, this._offers);
+    const pointPresenter = new PointPresenter(this._listComponent, this._handleViewAction, this._handleModeChange, this._destinations, this._offers);
     pointPresenter.init(point);
     this._pointPresenter[point.id] = pointPresenter;
   }
@@ -226,7 +223,7 @@ export default class Board {
     this._renderPoints();
   }
 
-  _clearBoard({resetSortType = false} = {}) {
+  _clearAll({resetSortType = false} = {}) {
     this._newPointPreseter.destroy();
     Object.values(this._pointPresenter).forEach((pesenter) => {
       pesenter.destroy();
@@ -240,5 +237,4 @@ export default class Board {
       this._currentSortType = SortType.DEFAULT;
     }
   }
-
 }

@@ -26,13 +26,6 @@ export const getOptions = (poinType, options, offers) => {
   let dataMap = getDataMap(offers);
   getOffersPrices(offers);
 
-  for (let i = 0; i < offers.length; i++) {
-    if (offers[i].type === poinType) {
-      newacceptableOptions = offers[i].offers;
-      break;
-    }
-  }
-
   let element = ``;
 
   if (newacceptableOptions.length < 1) {
@@ -40,27 +33,28 @@ export const getOptions = (poinType, options, offers) => {
     return element;
   }
 
-  for (let i = 0; i < newacceptableOptions.length; i++) {
+  for (const [i, option] of newacceptableOptions.entries()) {
     element = element + `<div class="event__available-offers">
     <div class="event__offer-selector">
-      <input class="event__offer-checkbox visually-hidden" data-custom="${dataMap[newacceptableOptions[i].title]}" id="event-offer-${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}-${i}" type="checkbox" name="event-offer-
-      ${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}" ${options[newacceptableOptions[i].title] ? `checked` : ``}>
-      <label class="event__offer-label" for="event-offer-${newacceptableOptions[i].title.split(` `)[newacceptableOptions[i].title.split(` `).length - 1]}-${i}">
-        <span class="event__offer-title">${newacceptableOptions[i].title}</span>
+      <input class="event__offer-checkbox visually-hidden" data-custom="${dataMap[option.title]}" id="event-offer-${option.title.split(` `)[option.title.split(` `).length - 1]}-${i}" type="checkbox" name="event-offer-
+      ${option.title.split(` `)[option.title.split(` `).length - 1]}" ${options[option.title] ? `checked` : ``}>
+      <label class="event__offer-label" for="event-offer-${option.title.split(` `)[option.title.split(` `).length - 1]}-${i}">
+        <span class="event__offer-title">${option.title}</span>
         &plus;&euro;&nbsp;
-        <span class="event__offer-price">${newacceptableOptions[i].price}</span>
+        <span class="event__offer-price">${option.price}</span>
       </label>
     </div>`;
   }
+
   return element;
 };
 
 export const getRadio = (allNames) => {
   let element = ``;
-  for (let i = 0; i < allNames.length; i++) {
+  for (const [i, name] of allNames.entries()) {
     element = element + `<div class="event__type-item">
-    <input id="event-type-${allNames[i].toLowerCase()}-${i}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="-${allNames[i].toLowerCase()}">
-    <label class="event__type-label  event__type-label--${allNames[i].toLowerCase()}" for="event-type-${allNames[i].toLowerCase()}-${i}">${allNames[i]}</label>
+    <input id="event-type-${name.toLowerCase()}-${i}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="-${name.toLowerCase()}">
+    <label class="event__type-label  event__type-label--${name.toLowerCase()}" for="event-type-${name.toLowerCase()}-${i}">${allNames[i]}</label>
   </div>`;
   }
   return element;
@@ -220,10 +214,8 @@ export default class EditPointView extends Smart {
     this.getElement().querySelector(`.event__reset-btn`).addEventListener(`click`, this._clickDeleteHandler);
   }
 
-  // метод, устанавливающий eventlistener. Принимает на вход callback (). Callback передается как значение для свойства this._callback.formSubmit
   setFormSubmitHandler(callback) {
     this._callback.formSubmit = callback;
-    // по событию submit на форме вызывается this._formSubmitHandler
     this.getElement().querySelector(`form`).addEventListener(`submit`, this._formSubmitHandler);
   }
 
@@ -250,13 +242,12 @@ export default class EditPointView extends Smart {
   }
 
   _getPointDescription(pointName) {
-    let description;
-    for (let i = 0; i < this._destinations.length; i++) {
-      if (String(this._destinations[i].name) === String(pointName)) {
-        description = this._destinations[i].description;
+    let description = ``;
+    for (const element of this._destinations) {
+      if (String(element.name) === String(pointName)) {
+        description = element.description;
         break;
       }
-      description = ``;
     }
     return description;
   }
@@ -290,7 +281,6 @@ export default class EditPointView extends Smart {
   }
 
   _choosePointOptionsHandler(evt) {
-    // изменения options
     if (evt.target.type !== `checkbox`) {
       return;
     }
@@ -300,7 +290,6 @@ export default class EditPointView extends Smart {
     const prices = getOffersPrices(this._offers);
 
     const currentOptions = Object.assign({}, this._data.options);
-    // всё работает, но вместо присвоения опции 0, её нужно удалять, а у меня чего-то не выходит. Как это лучше сделать?
     currentOptions[reverseMap[evt.target.dataset.custom]] = evt.target.checked ? prices[reverseMap[evt.target.dataset.custom]] : 0;
 
     this.updateData({
