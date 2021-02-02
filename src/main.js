@@ -13,7 +13,7 @@ const END_POINT = `https://13.ecmascript.pages.academy/big-trip/`;
 
 const api = new Api(END_POINT, AUTHORIZATION);
 const filterModel = new FilterModel();
-export const menuViewComponent = new MenuView();
+const menuViewComponent = new MenuView();
 const pointsModel = new PointsModel();
 
 const tripMainTripControls = document.querySelector(`.trip-main__trip-controls`);
