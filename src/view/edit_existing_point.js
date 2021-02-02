@@ -22,8 +22,8 @@ export const getOptions = (poinType, options, offers) => {
     return ``;
   }
 
-  let newacceptableOptions = getpointsVsOptions(offers)[poinType];
-  let dataMap = getDataMap(offers);
+  const newacceptableOptions = getpointsVsOptions(offers)[poinType];
+  const dataMap = getDataMap(offers);
   getOffersPrices(offers);
 
   let element = ``;
